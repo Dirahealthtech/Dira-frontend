@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, authAPI } from './AuthContext';
 
 const Login = () => {
@@ -15,6 +15,10 @@ const Login = () => {
   
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the redirect path from location state, or default based on role
+  const from = location.state?.from?.pathname;
 
   const validateForm = () => {
     const newErrors = {};
@@ -44,7 +48,21 @@ const Login = () => {
     try {
       // Call the context login method which handles everything
       await login(formData.username, formData.password);
-      navigate('/');
+      
+      // Get the user data from the auth context after login
+      const currentUser = await authAPI.getCurrentUser();
+      
+      // Determine where to redirect based on user role
+      if (from) {
+        // If there's a specific page they were trying to access, go there
+        navigate(from, { replace: true });
+      } else if (currentUser.role === 'admin') {
+        // If admin, redirect to admin dashboard
+        navigate('/admin', { replace: true });
+      } else {
+        // Otherwise, redirect to home page
+        navigate('/', { replace: true });
+      }
     } catch (error) {
       setApiError(error.message || 'Invalid credentials. Please try again.');
     } finally {
