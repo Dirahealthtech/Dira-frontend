@@ -1,139 +1,112 @@
 import React, { useState } from 'react';
-import { Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+import { Loader2, Mail, ArrowLeft } from 'lucide-react';
 
 const ForgotPassword = () => {
+  const { forgotPassword } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const navigate = useNavigate();
-
-  const validateEmail = (email) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccessMessage('');
+    setLoading(true);
 
-    if (!email) {
-      setError('Email is required');
-      return;
+    const result = await forgotPassword(email);
+    
+    if (result.success) {
+      setSubmitted(true);
     }
-
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/v1/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage('Password reset instructions have been sent to your email.');
-        setEmail('');
-      } else {
-        setError(data.message || 'An error occurred. Please try again.');
-      }
-    } catch (error) {
-      setError('An error occurred. Please try again later.');
-    } finally {
-      setIsLoading(false);
-    }
+    
+    setLoading(false);
   };
 
+  if (submitted) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 text-center">
+          <div className="bg-green-50 rounded-lg p-6">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mail className="h-6 w-6 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
+            <p className="text-gray-600 mb-6">
+              We've sent a password reset link to {email}
+            </p>
+            <Link
+              to="/login"
+              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gray-50">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Reset your password</h2>
-          <p className="mt-2 text-gray-600">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Forgot your password?
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
             Enter your email address and we'll send you a link to reset your password.
           </p>
         </div>
-
-        <div className="bg-white py-8 px-10 shadow-lg rounded-lg">
-          <button
-            onClick={() => navigate('/login')}
-            className="flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to login
-          </button>
-
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <span className="text-sm text-red-600">{error}</span>
+        
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email address
+            </label>
+            <div className="mt-1 relative">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="appearance-none block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="john@example.com"
+              />
+              <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-          )}
+          </div>
 
-          {successMessage && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <span className="text-sm text-green-600">{successMessage}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <div className="relative">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                    error && !successMessage ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter your email"
-                />
-                <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
-              </div>
-            </div>
-
+          <div>
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Sending instructions...</span>
-                </div>
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                  Sending...
+                </>
               ) : (
-                'Send Reset Instructions'
+                'Send reset link'
               )}
             </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <span className="text-sm text-gray-600">
-              Remember your password?{' '}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign in
-              </Link>
-            </span>
           </div>
-        </div>
+
+          <div className="text-center">
+            <Link
+              to="/login"
+              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to login
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );
