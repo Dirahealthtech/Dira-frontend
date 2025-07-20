@@ -31,13 +31,11 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      const response = await api.get('/auth/user/me');
+      const response = await api.get('/api/v1/auth/user/me');
       setUser(response.data);
-      console.log(response.data);
       
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Failed to load user:', error);
       // Token might be expired, try to refresh
       await refreshToken();
     } finally {
@@ -47,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await api.post('/auth/login', credentials);
+      const response = await api.post('/api/v1/auth/login', credentials);
       const { access_token, refresh_token } = response.data;
       
       localStorage.setItem('access_token', access_token);
@@ -67,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     try {
-      const response = await api.post('/auth/signup', userData);
+      const response = await api.post('/api/v1/auth/signup', userData);
       toast.success(response.data.message || 'Account created successfully!');
       return { success: true, data: response.data };
     } catch (error) {
@@ -79,10 +77,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post('/api/v1/auth/logout');
       toast.success('Logged out successfully');
     } catch (error) {
-      console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
@@ -99,7 +96,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('No refresh token');
       }
 
-      const response = await api.get('/auth/refresh-token', {
+      const response = await api.get('/api/v1/auth/refresh-token', {
         headers: {
           'Authorization': `Bearer ${refresh_token}`
         }
@@ -112,7 +109,6 @@ export const AuthProvider = ({ children }) => {
       await loadUser();
       return true;
     } catch (error) {
-      console.error('Token refresh failed:', error);
       setUser(null);
       setIsAuthenticated(false);
       return false;
@@ -121,7 +117,7 @@ export const AuthProvider = ({ children }) => {
 
   const forgotPassword = async (email) => {
     try {
-      const response = await api.post('/auth/reset-password', { email });
+      const response = await api.post('/api/v1/auth/reset-password', { email });
       toast.success(response.data.message || 'Password reset link sent to your email');
       return { success: true };
     } catch (error) {
@@ -133,7 +129,7 @@ export const AuthProvider = ({ children }) => {
 
   const resetPassword = async (token, passwords) => {
     try {
-      const response = await api.post(`/auth/confirm-reset-password/${token}`, passwords);
+      const response = await api.post(`/api/v1/auth/confirm-reset-password/${token}`, passwords);
       toast.success(response.data.message || 'Password reset successfully');
       return { success: true };
     } catch (error) {
@@ -145,7 +141,7 @@ export const AuthProvider = ({ children }) => {
 
   const verifyEmail = async (token) => {
     try {
-      const response = await api.get(`/auth/verify-account/${token}`);
+      const response = await api.get(`/api/v1/auth/verify-account/${token}`);
       toast.success(response.data.message || 'Email verified successfully');
       return { success: true };
     } catch (error) {
@@ -157,7 +153,7 @@ export const AuthProvider = ({ children }) => {
 
   const requestVerificationLink = async (email) => {
     try {
-      const response = await api.post('/auth/request-verification-link', { email });
+      const response = await api.post('/api/v1/auth/request-verification-link', { email });
       toast.success(response.data.message || 'Verification link sent to your email');
       return { success: true };
     } catch (error) {

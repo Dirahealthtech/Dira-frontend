@@ -54,6 +54,10 @@ const Header = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    setUserMenuOpen(false);
+  }, [user]);
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -132,22 +136,6 @@ const Header = () => {
                         >
                           <LayoutDashboard className="h-4 w-4 mr-2" />
                           Dashboard
-                        </Link>
-                        <Link
-                          to={`${getDashboardLink()}/orders`}
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <Package className="h-4 w-4 mr-2" />
-                          Orders
-                        </Link>
-                        <Link
-                          to={`${getDashboardLink()}/settings`}
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <Settings className="h-4 w-4 mr-2" />
-                          Settings
                         </Link>
                         <hr className="my-1" />
                         <button

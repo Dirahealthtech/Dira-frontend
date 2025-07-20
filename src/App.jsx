@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './auth/AuthContext';
 import Header from './common/Header';
@@ -12,6 +12,15 @@ import ResetPassword from './auth/ResetPassword';
 import VerifyEmail from './auth/VerifyEmail';
 import CustomerDashboard from './pages/customer/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
+
+
+const HeaderWrapper = () => {
+  const location = useLocation();
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+  return <Header />;
+};
 
 function App() {
   return (
@@ -43,7 +52,7 @@ function App() {
               },
             }}
           />
-          <Header />
+          <HeaderWrapper />
           <main className="flex-1">
             <Routes>
               {/* Public Routes */}
