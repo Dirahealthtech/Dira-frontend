@@ -1,21 +1,7 @@
 // AdminSidebar.js
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  Settings, 
-  BarChart3, 
-  FileText, 
-  Truck, 
-  Heart, 
-  ChevronLeft, 
-  ChevronRight, 
-  Menu, 
-  X 
-} from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, FileText, Truck, Heart, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 
 const AdminSidebar = ({ isCollapsed, setIsCollapsed }) => {
   const location = useLocation();

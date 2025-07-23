@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import CategoryManagement from './CategoryManagement';
+import ProductManagement from './ProductManagement';
 
 const AdminDashboard = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -41,10 +42,7 @@ const AdminDashboard = () => {
               
               <Route path="/products" element={
                 <div className="space-y-6">
-                  <h1 className="text-2xl font-bold text-gray-900">Manage Products</h1>
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-gray-600">Products management interface - To be implemented</p>
-                  </div>
+                  <ProductManagement />
                 </div>
               } />
               
