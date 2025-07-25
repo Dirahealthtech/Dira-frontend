@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard, Heart,Search,Phone,ChevronDown} from 'lucide-react';
+import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard, Heart, Search, Phone, ChevronDown } from 'lucide-react';
 
 const Header = () => {
   const { user, logout, isLoading } = useAuth();
@@ -10,16 +10,14 @@ const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const userMenuRef = useRef(null);
   const sidebarRef = useRef(null);
+  console.log("Hello");
+  
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-    setUserMenuOpen(false);
-  };
-
-  const getDashboardLink = () => {
+  // Memoize expensive computations
+  const dashboardLink = useMemo(() => {
     switch (user?.role) {
       case 'admin':
         return '/admin';
@@ -32,19 +30,39 @@ const Header = () => {
       default:
         return '/';
     }
-  };
+  }, [user?.role]);
 
-  const isActive = (path) => {
+  const isActive = useCallback((path) => {
     return location.pathname.startsWith(path);
-  };
+  }, [location.pathname]);
 
-  const handleSearch = (e) => {
+  // Stable handlers to prevent re-renders
+  const handleLogout = useCallback(async () => {
+    await logout();
+    navigate('/');
+    setUserMenuOpen(false);
+  }, [logout, navigate]);
+
+  const handleSearch = useCallback((e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setShowMobileSearch(false);
     }
-  };
+  }, [searchQuery, navigate]);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen(prev => !prev);
+  }, []);
+
+  const toggleUserMenu = useCallback(() => {
+    setUserMenuOpen(prev => !prev);
+  }, []);
+
+  const toggleMobileSearch = useCallback(() => {
+    setShowMobileSearch(prev => !prev);
+  }, []);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -64,15 +82,12 @@ const Header = () => {
     };
   }, []);
 
-  // Close sidebar when route changes
+  // Close menus when route changes
   useEffect(() => {
     setSidebarOpen(false);
-  }, [location.pathname]);
-
-  // Close user menu when user changes
-  useEffect(() => {
     setUserMenuOpen(false);
-  }, [user]);
+    setShowMobileSearch(false);
+  }, [location.pathname]);
 
   // Prevent scroll when sidebar is open
   useEffect(() => {
@@ -93,7 +108,7 @@ const Header = () => {
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={toggleSidebar}
               className="md:hidden p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
               data-sidebar-trigger
               aria-label="Open menu"
@@ -116,8 +131,8 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Search Bar - Desktop */}
-            <div className="hidden lg:flex flex-1 max-w-md mx-8">
+            {/* Search Bar - Desktop & Tablet */}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
               <form onSubmit={handleSearch} className="relative w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -145,10 +160,10 @@ const Header = () => {
 
             {/* Right side items */}
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Search Button - Mobile/Tablet */}
+              {/* Search Button - Mobile */}
               <button
-                onClick={() => navigate('/search')}
-                className="lg:hidden p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
+                onClick={toggleMobileSearch}
+                className="md:hidden p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
                 aria-label="Search"
               >
                 <Search className="h-6 w-6" />
@@ -170,7 +185,7 @@ const Header = () => {
               {!isLoading && (
                 <div className="relative" ref={userMenuRef}>
                   <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    onClick={toggleUserMenu}
                     className="flex items-center space-x-1 p-2 text-gray-700 hover:text-[#8ab43f] transition-colors"
                     aria-label="User account"
                   >
@@ -187,7 +202,7 @@ const Header = () => {
                       {user ? (
                         <>
                           <Link
-                            to={getDashboardLink()}
+                            to={dashboardLink}
                             onClick={() => setUserMenuOpen(false)}
                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
@@ -227,6 +242,25 @@ const Header = () => {
               )}
             </div>
           </div>
+
+          {/* Mobile Search Bar */}
+          {showMobileSearch && (
+            <div className="md:hidden pb-4">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ab43f] focus:border-[#8ab43f] outline-none text-sm"
+                    autoFocus
+                  />
+                </div>
+              </form>
+            </div>
+          )}
         </nav>
       </header>
 
@@ -260,24 +294,60 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Search Bar - Mobile */}
-            <div className="p-4 border-b border-gray-200">
-              <form onSubmit={handleSearch}>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ab43f] focus:border-[#8ab43f] outline-none text-sm"
-                  />
-                </div>
-              </form>
-            </div>
+            {/* Mobile Navigation Links */}
+            <nav className="p-4 flex-1">
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to="/"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
+                      isActive('/') && location.pathname === '/' ? 'bg-gray-100' : ''
+                    }`}
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/products"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
+                      isActive('/products') ? 'bg-gray-100' : ''
+                    }`}
+                  >
+                    Products
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/cart"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
+                      isActive('/cart') ? 'bg-gray-100' : ''
+                    }`}
+                  >
+                    Cart
+                  </Link>
+                </li>
+                {user && (
+                  <li>
+                    <Link
+                      to={dashboardLink}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
+                        isActive(dashboardLink) ? 'bg-gray-100' : ''
+                      }`}
+                    >
+                      Dashboard
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </nav>
 
             {/* Help Section */}
-            <div className="px-8 py-4 border-t border-gray-200 mt-auto">
+            <div className="px-4 py-4 border-t border-gray-200 mt-auto">
               <div className="flex items-center text-sm text-gray-600">
                 <Phone className="h-4 w-4 mr-2" />
                 <div>

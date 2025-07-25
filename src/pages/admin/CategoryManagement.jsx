@@ -44,16 +44,30 @@ const CategoryManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Create FormData object for multipart/form-data
+      const formDataPayload = new FormData();
+      formDataPayload.append('name', formData.name);
+      formDataPayload.append('description', formData.description || '');
+      
+      // Only append parent_id if it has a valid value
+      if (formData.parent_id !== null && formData.parent_id !== '') {
+        formDataPayload.append('parent_id', formData.parent_id.toString());
+      }
+      
+      formDataPayload.append('is_active', formData.is_active.toString());
+
       if (editingCategory) {
-        await api.patch(`/api/v1/admin/categories/${editingCategory.id}`, {
-          ...formData,
-          parent_id: formData.parent_id || null
+        await api.patch(`/api/v1/admin/categories/${editingCategory.id}`, formDataPayload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
         toast.success('Category updated successfully!');
       } else {
-        await api.post('/api/v1/admin/categories', {
-          ...formData,
-          parent_id: formData.parent_id || null
+        await api.post('/api/v1/admin/categories', formDataPayload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
         toast.success('Category created successfully!');
       }

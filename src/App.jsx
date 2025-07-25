@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './auth/AuthContext';
 import Header from './common/Header';
+import CategoryNavigation from './common/CategoryNavigation';
 import ProtectedRoute from './auth/ProtectedRoute';
 import PublicRoute from './auth/PublicRoute';
 import Login from './auth/Login';
@@ -12,7 +13,8 @@ import ResetPassword from './auth/ResetPassword';
 import VerifyEmail from './auth/VerifyEmail';
 import CustomerDashboard from './pages/customer/Dashboard';
 import AdminDashboard from './pages/admin/Dashboard';
-
+import ProductDetails from './pages/ProductDetails';
+import ProductsPage from './pages/ProductsPage';
 
 const HeaderWrapper = () => {
   const location = useLocation();
@@ -20,6 +22,21 @@ const HeaderWrapper = () => {
     return null;
   }
   return <Header />;
+};
+
+const CategoryNavigationWrapper = () => {
+  const location = useLocation();
+  
+  // Hide category navigation on admin routes and auth routes
+  if (location.pathname.startsWith('/admin') || 
+      location.pathname.startsWith('/login') || 
+      location.pathname.startsWith('/signup') || 
+      location.pathname.startsWith('/forgot-password') || 
+      location.pathname.startsWith('/api/v1/auth/')) {
+    return null;
+  }
+  
+  return <CategoryNavigation />;
 };
 
 function App() {
@@ -53,12 +70,13 @@ function App() {
             }}
           />
           <HeaderWrapper />
+          <CategoryNavigationWrapper />
           <main className="flex-1">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<div>Home Page - To be implemented</div>} />
-              <Route path="/products" element={<div>Products Page - To be implemented</div>} />
-              <Route path="/products/:id" element={<div>Product Detail - To be implemented</div>} />
+              <Route path="/products/:categorySlug" element={<ProductsPage />} />
+              <Route path="/products/:productId" element={<ProductDetails />} />
               <Route path="/cart" element={<div>Shopping Cart - To be implemented</div>} />
               
               {/* Auth Routes */}
