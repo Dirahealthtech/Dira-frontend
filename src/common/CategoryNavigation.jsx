@@ -1,6 +1,4 @@
-// Updated CategoryNavigation component with proper dropdown visibility
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import api from '../auth/api';
@@ -8,9 +6,11 @@ import api from '../auth/api';
 const CategoryNavigation = () => {
   const [categories, setCategories] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ left: 0, top: 0 });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const categoryRefs = useRef({});
 
   useEffect(() => {
     fetchCategories();
@@ -18,7 +18,7 @@ const CategoryNavigation = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get('/api/v1/admin/categories');
+      const response = await api.get('/api/v1/admin/list-categories');
       setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
@@ -42,9 +42,17 @@ const CategoryNavigation = () => {
     setActiveDropdown(null);
   };
 
-  const toggleDropdown = (categoryId, e) => {
-    e.stopPropagation();
-    setActiveDropdown(activeDropdown === categoryId ? null : categoryId);
+  const handleMouseEnter = (categoryId) => {
+    if (categoryRefs.current[categoryId]) {
+      const rect = categoryRefs.current[categoryId].getBoundingClientRect();
+      const containerRect = categoryRefs.current[categoryId].closest('.container').getBoundingClientRect();
+      
+      setDropdownPosition({
+        left: rect.left - containerRect.left,
+        top: rect.bottom - containerRect.top
+      });
+      setActiveDropdown(categoryId);
+    }
   };
 
   if (loading) {
@@ -65,65 +73,68 @@ const CategoryNavigation = () => {
 
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-      <div className="container mx-auto px-4 py-3">
-        {/* Remove overflow-x-auto and add static positioning for dropdown container */}
-        <div className="flex space-x-1">
-          <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
-            {organizedCategories.map((category) => (
-              <div 
-                key={category.id} 
-                className="relative flex-shrink-0"
-                onMouseEnter={() => category.children.length > 0 && setActiveDropdown(category.id)}
-                onMouseLeave={() => setActiveDropdown(null)}
+      <div className="container mx-auto px-4 py-3 relative">
+        <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
+          {organizedCategories.map((category) => (
+            <div 
+              key={category.id} 
+              ref={el => categoryRefs.current[category.id] = el}
+              className="flex-shrink-0"
+              onMouseEnter={() => category.children.length > 0 && handleMouseEnter(category.id)}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <div
+                className={`flex items-center space-x-1 px-4 py-2 rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap
+                  ${activeDropdown === category.id 
+                    ? 'bg-blue-50 text-blue-600' 
+                    : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                onClick={() => handleCategoryClick(category)}
               >
-                <div
-                  className={`flex items-center space-x-1 px-4 py-2 rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap
-                    ${activeDropdown === category.id 
-                      ? 'bg-blue-50 text-blue-600' 
-                      : 'hover:bg-gray-100 text-gray-700'
-                    }`}
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  <span className="font-medium">{category.name}</span>
-                  {category.children.length > 0 && (
-                    <div className="p-1 hover:bg-gray-200 rounded transition-colors">
-                      {activeDropdown === category.id ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                    </div>
-                  )}
-                </div>
+                <span className="font-medium">{category.name}</span>
+                {category.children.length > 0 && (
+                  <div className="p-1 hover:bg-gray-200 rounded transition-colors">
+                    {activeDropdown === category.id ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
         
-        {/* Dropdown rendered outside the scrolling container */}
+        {/* Dropdown positioned using calculated coordinates */}
         {organizedCategories.map((category) => (
           category.children.length > 0 && activeDropdown === category.id && (
             <div 
               key={`dropdown-${category.id}`}
-              className="absolute left-4 bg-white border border-gray-200 rounded-lg shadow-xl min-w-48 z-[100] mt-1"
+              className="absolute bg-white border border-gray-200 rounded-md shadow-lg min-w-48 z-[100] py-1"
               style={{
-                top: '100%',
-                transform: 'translateY(0)'
+                left: `${dropdownPosition.left}px`,
+                top: `${dropdownPosition.top + 2}px`
               }}
               onMouseEnter={() => setActiveDropdown(category.id)}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <div className="py-2">
-                {category.children.map((child) => (
-                  <button
-                    key={child.id}
-                    onClick={() => handleCategoryClick(child)}
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+              {category.children.map((child, index) => (
+                <div key={child.id}>
+                  <a
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCategoryClick(child);
+                    }}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
                   >
                     {child.name}
-                  </button>
-                ))}
-              </div>
+                  </a>
+                  {index < category.children.length - 1 && (
+                    <div className="border-b border-gray-100 mx-2"></div>
+                  )}
+                </div>
+              ))}
             </div>
           )
         ))}

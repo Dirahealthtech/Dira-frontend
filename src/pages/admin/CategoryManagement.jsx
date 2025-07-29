@@ -24,7 +24,7 @@ const CategoryManagement = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/v1/admin/categories');
+      const response = await api.get('/api/v1/admin/list-categories');
       setCategories(response.data);
       setError(null);
     } catch (err) {
@@ -64,7 +64,7 @@ const CategoryManagement = () => {
         });
         toast.success('Category updated successfully!');
       } else {
-        await api.post('/api/v1/admin/categories', formDataPayload, {
+        await api.post('/api/v1/admin/list-categories', formDataPayload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

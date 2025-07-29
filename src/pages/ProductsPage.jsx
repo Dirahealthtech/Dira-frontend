@@ -53,7 +53,7 @@ const ProductsPage = () => {
   };
 
   const handleProductClick = (product) => {
-    navigate(`/products/${product.slug}`, { state: { productId: product.id } });
+    navigate(`/product/${product.id}`);
   };
 
   if (loading) {
@@ -102,7 +102,7 @@ const ProductsPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.map((product) => {
-              const discount = calculateDiscount(product.pricing.discounted_price, product.pricing.price);
+              const discount = calculateDiscount(product.pricing.price, product.pricing.discounted_price);
               const hasDiscount = discount > 0;
               
               return (

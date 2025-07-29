@@ -1,19 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ShoppingCart, 
-  Heart, 
-  Share2, 
-  Star, 
-  Check, 
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Package,
-  Shield,
-  Truck,
-  Clock
-} from 'lucide-react';
+import { ShoppingCart, Heart, Share2, Star, Check, AlertCircle,ChevronLeft,ChevronRight,Package,Shield,Truck,Clock} from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../auth/api';
 import { useAuth } from '../auth/AuthContext';
@@ -42,9 +29,15 @@ const ProductDetails = () => {
       setProduct(response.data);
       setError(null);
     } catch (err) {
-      setError('Failed to load product details');
-      toast.error('Error loading product details');
-      console.error('Error fetching product:', err);
+      try {
+        const response = await api.get(`/api/v1/products/slug/${productSlug}`);
+        setProduct(response.data);
+        setError(null);
+      } catch (slugErr) {
+        setError('Failed to load product details');
+        toast.error('Error loading product details');
+        console.error('Error fetching product:', slugErr);
+      }
     } finally {
       setLoading(false);
     }
@@ -110,6 +103,7 @@ const ProductDetails = () => {
 
   const calculateDiscount = () => {
     if (!product?.pricing?.discounted_price || !product?.pricing?.price) return 0;
+    if (product.pricing.price >= product.pricing.discounted_price) return 0;
     return Math.round(((product.pricing.discounted_price - product.pricing.price) / product.pricing.discounted_price) * 100);
   };
 

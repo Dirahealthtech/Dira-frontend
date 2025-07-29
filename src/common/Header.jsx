@@ -13,7 +13,6 @@ const Header = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const userMenuRef = useRef(null);
   const sidebarRef = useRef(null);
-  console.log("Hello");
   
 
   // Memoize expensive computations

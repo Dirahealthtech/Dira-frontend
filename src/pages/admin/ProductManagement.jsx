@@ -80,7 +80,7 @@ const ProductManagement = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get('/api/v1/admin/categories');
+      const response = await api.get('/api/v1/admin/list-categories');
       setCategories(response.data || []);
     } catch (error) {
       toast.error('Failed to fetch categories');

@@ -76,7 +76,7 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<div>Home Page - To be implemented</div>} />
               <Route path="/products/:categorySlug" element={<ProductsPage />} />
-              <Route path="/products/:productId" element={<ProductDetails />} />
+              <Route path="/product/:productId" element={<ProductDetails />} />
               <Route path="/cart" element={<div>Shopping Cart - To be implemented</div>} />
               
               {/* Auth Routes */}
