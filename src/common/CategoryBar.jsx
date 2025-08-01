@@ -38,7 +38,7 @@ const CategoryBar = () => {
   };
 
   const handleCategoryClick = (category) => {
-    navigate(`/products/${category.slug}`, { state: { categoryId: category.id, categoryName: category.name } });
+    navigate(`/products/category/${category.slug}`, { state: { categoryId: category.id, categoryName: category.name } });
     setActiveDropdown(null);
   };
 

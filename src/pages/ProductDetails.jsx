@@ -6,7 +6,7 @@ import api from '../auth/api';
 import { useAuth } from '../auth/AuthContext';
 
 const ProductDetails = () => {
-  const { productId } = useParams();
+  const { productSlug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   
@@ -20,12 +20,12 @@ const ProductDetails = () => {
 
   useEffect(() => {
     fetchProductDetails();
-  }, [productId]);
+  }, [productSlug]);
 
   const fetchProductDetails = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/v1/user/activity/product/${productId}`);
+      const response = await api.get(`/api/v1/user/activity/product/${productSlug}`);
       setProduct(response.data);
       setError(null);
     } catch (err) {

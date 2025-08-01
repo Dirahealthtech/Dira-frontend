@@ -14,6 +14,7 @@ import VerifyEmail from './auth/VerifyEmail';
 import CustomerDashboard from './pages/customer/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductDetails from './pages/ProductDetails';
+import ProductsPage from './pages/ProductsPage';
 
 // Component to conditionally render Header and CategoryBar
 const ConditionalHeader = () => {
@@ -72,8 +73,9 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<div>Home Page - To be implemented</div>} />
-              <Route path="/products" element={<div>Products Page - To be implemented</div>} />
-              <Route path="/products/:productId" element={<ProductDetails /> }/>
+              {/* <Route path="/products" element={<ProductsPage />} /> */}
+              <Route path="/products/category/:categorySlug" element={<ProductsPage />} />
+              <Route path="/products/:productSlug" element={<ProductDetails /> }/>
               <Route path="/cart" element={<div>Shopping Cart - To be implemented</div>} />
               <Route path="/search" element={<div>Search Results - To be implemented</div>} />
               
