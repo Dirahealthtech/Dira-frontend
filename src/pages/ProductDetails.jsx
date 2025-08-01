@@ -25,19 +25,11 @@ const ProductDetails = () => {
   const fetchProductDetails = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/v1/admin/products/${productId}`);
+      const response = await api.get(`/api/v1/user/activity/product/${productId}`);
       setProduct(response.data);
       setError(null);
     } catch (err) {
-      try {
-        const response = await api.get(`/api/v1/products/slug/${productSlug}`);
-        setProduct(response.data);
-        setError(null);
-      } catch (slugErr) {
-        setError('Failed to load product details');
-        toast.error('Error loading product details');
-        console.error('Error fetching product:', slugErr);
-      }
+      toast.error('Error loading product details');
     } finally {
       setLoading(false);
     }

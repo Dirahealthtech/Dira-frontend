@@ -63,7 +63,7 @@ const ProductManagement = () => {
         }
       });
 
-      const response = await api.get(`/api/v1/admin/products?${params}`);
+      const response = await api.get(`/api/v1/admin/list-products?${params}`);
       setProducts(response.data.items || []);
       setPagination({
         total: response.data.total || 0,
@@ -72,7 +72,6 @@ const ProductManagement = () => {
       });
     } catch (error) {
       toast.error('Failed to fetch products');
-      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
@@ -84,7 +83,6 @@ const ProductManagement = () => {
       setCategories(response.data || []);
     } catch (error) {
       toast.error('Failed to fetch categories');
-      console.error('Error fetching categories:', error);
     }
   };
 
@@ -190,7 +188,6 @@ const ProductManagement = () => {
       fetchProducts();
     } catch (error) {
       toast.error(editingProduct ? 'Failed to update product' : 'Failed to create product');
-      console.error('Error submitting product:', error);
     } finally {
       setLoading(false);
     }
@@ -244,7 +241,6 @@ const ProductManagement = () => {
       fetchProducts();
     } catch (error) {
       toast.error('Failed to delete product');
-      console.error('Error deleting product:', error);
     } finally {
       setLoading(false);
     }

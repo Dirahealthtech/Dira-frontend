@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './auth/AuthContext';
 import Header from './common/Header';
-import CategoryNavigation from './common/CategoryNavigation';
+import CategoryBar from './common/CategoryBar';
 import ProtectedRoute from './auth/ProtectedRoute';
 import PublicRoute from './auth/PublicRoute';
 import Login from './auth/Login';
@@ -12,31 +12,29 @@ import ForgotPassword from './auth/ForgotPassword';
 import ResetPassword from './auth/ResetPassword';
 import VerifyEmail from './auth/VerifyEmail';
 import CustomerDashboard from './pages/customer/Dashboard';
-import AdminDashboard from './pages/admin/Dashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductDetails from './pages/ProductDetails';
-import ProductsPage from './pages/ProductsPage';
 
-const HeaderWrapper = () => {
+// Component to conditionally render Header and CategoryBar
+const ConditionalHeader = () => {
   const location = useLocation();
-  if (location.pathname.startsWith('/admin')) {
-    return null;
-  }
-  return <Header />;
-};
-
-const CategoryNavigationWrapper = () => {
-  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isServiceRoute = location.pathname.startsWith('/service');
+  const isSupplierRoute = location.pathname.startsWith('/supplier');
+  const isAuthRoute = ['/login', '/signup', '/forgot-password'].some(path => 
+    location.pathname.startsWith(path)
+  ) || location.pathname.includes('/confirm-reset-password') || 
+      location.pathname.includes('/verify-account');
   
-  // Hide category navigation on admin routes and auth routes
-  if (location.pathname.startsWith('/admin') || 
-      location.pathname.startsWith('/login') || 
-      location.pathname.startsWith('/signup') || 
-      location.pathname.startsWith('/forgot-password') || 
-      location.pathname.startsWith('/api/v1/auth/')) {
-    return null;
-  }
+  // Don't show header and category bar on admin, service, supplier routes, or auth pages
+  const shouldHideNavigation = isAdminRoute || isServiceRoute || isSupplierRoute || isAuthRoute;
   
-  return <CategoryNavigation />;
+  return !shouldHideNavigation ? (
+    <>
+      <Header />
+      <CategoryBar />
+    </>
+  ) : null;
 };
 
 function App() {
@@ -69,15 +67,15 @@ function App() {
               },
             }}
           />
-          <HeaderWrapper />
-          <CategoryNavigationWrapper />
+          <ConditionalHeader />
           <main className="flex-1">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<div>Home Page - To be implemented</div>} />
-              <Route path="/products/:categorySlug" element={<ProductsPage />} />
-              <Route path="/product/:productId" element={<ProductDetails />} />
+              <Route path="/products" element={<div>Products Page - To be implemented</div>} />
+              <Route path="/products/:productId" element={<ProductDetails /> }/>
               <Route path="/cart" element={<div>Shopping Cart - To be implemented</div>} />
+              <Route path="/search" element={<div>Search Results - To be implemented</div>} />
               
               {/* Auth Routes */}
               <Route element={<PublicRoute />}>

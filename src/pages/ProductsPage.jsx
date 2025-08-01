@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Tag, Star, Heart, Eye } from 'lucide-react';
-import api from '../auth/api';
+import useProducts from '../hooks/useProducts'; // Import the custom hook
 
 const ProductsPage = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const { categorySlug } = useParams();
   const location = useLocation();
@@ -14,48 +12,39 @@ const ProductsPage = () => {
   const categoryName = location.state?.categoryName || 'Products';
   const categoryId = location.state?.categoryId;
 
-  useEffect(() => {
-    fetchProducts();
-  }, [categoryId]);
+  // Use the custom hook - this handles all the caching and API logic
+  const { products, loading, error, refreshProducts } = useProducts(categoryId);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await api.get('/api/v1/user/activity/homepage');
-      // Filter products by category if categoryId is available
-      const filteredProducts = categoryId 
-        ? response.data.filter(product => product.category_id === categoryId)
-        : response.data;
-      setProducts(filteredProducts);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateDiscount = (originalPrice, discountedPrice) => {
+  const calculateDiscount = useCallback((originalPrice, discountedPrice) => {
     if (!discountedPrice || discountedPrice >= originalPrice) return 0;
     return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
-  };
+  }, []);
 
-  const getFirstImage = (images) => {
+  const getFirstImage = useCallback((images) => {
     if (!images) return null;
     const imageArray = images.split(',');
     return imageArray[0] || null;
-  };
+  }, []);
 
-  const formatPrice = (price) => {
+  const formatPrice = useCallback((price) => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
       minimumFractionDigits: 0,
     }).format(price);
-  };
+  }, []);
 
-  const handleProductClick = (product) => {
-    navigate(`/product/${product.id}`);
-  };
+  const handleProductClick = useCallback((product) => {
+    navigate(`/product/${product.slug}`, {
+      state: { 
+        product, // Pass product data to avoid additional API calls
+        returnPath: location.pathname,
+        returnState: location.state
+      }
+    });
+  }, [navigate, location.pathname, location.state]);
 
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -124,7 +113,13 @@ const ProductsPage = () => {
 
                   {/* Wishlist Icon */}
                   <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors">
+                    <button 
+                      className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent navigation when clicking wishlist
+                        // Add wishlist functionality here
+                      }}
+                    >
                       <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition-colors" />
                     </button>
                   </div>
@@ -136,6 +131,7 @@ const ProductsPage = () => {
                         src={getFirstImage(product.images)}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy" // Add lazy loading for performance
                         onError={(e) => {
                           e.target.style.display = 'none';
                         }}

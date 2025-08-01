@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import api from '../auth/api';
 
-const CategoryNavigation = () => {
+const CategoryBar = () => {
   const [categories, setCategories] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [dropdownPosition, setDropdownPosition] = useState({ left: 0, top: 0 });
@@ -143,4 +143,4 @@ const CategoryNavigation = () => {
   );
 };
 
-export default CategoryNavigation;
+export default CategoryBar;

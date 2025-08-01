@@ -227,7 +227,7 @@ const CategoryManagement = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-2 bg-gray-50 min-h-screen">
+    <div className="max-w-6xl mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="my-2">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Category Management</h1>
