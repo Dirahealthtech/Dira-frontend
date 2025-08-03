@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
 import api from '../../auth/api';
+import { Edit2, Trash2 } from 'lucide-react';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -418,13 +419,13 @@ const ProductManagement = () => {
                             onClick={() => handleEdit(product)}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
                           >
-                            Edit
+                            <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => setDeleteModal({ open: true, product })}
                             className="text-red-600 hover:text-red-900 transition-colors"
                           >
-                            Delete
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </td>

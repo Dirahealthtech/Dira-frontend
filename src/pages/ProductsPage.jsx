@@ -146,9 +146,9 @@ const ProductsPage = () => {
   };
 
   const getProductImage = (images) => {
-    if (!images) return '/api/placeholder/300/300';
+    if (!images) return null;
     const imageArray = images.split(',');
-    return imageArray[0] ? `/api/${imageArray[0]}` : '/api/placeholder/300/300';
+    return imageArray[0] ? `http://localhost:8000/${imageArray[0]}` : null;
   };
 
   const organizeCategories = () => {
@@ -373,85 +373,92 @@ const ProductsPage = () => {
                   ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
                   : 'space-y-4'
               }>
-                {filteredProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => handleProductClick(product)}
-                    className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer group ${
-                      viewMode === 'list' ? 'flex gap-4 p-4' : 'overflow-hidden'
-                    }`}
-                  >
-                    {/* Product Image */}
-                    <div className={`relative ${viewMode === 'list' ? 'w-32 h-32 flex-shrink-0' : 'w-full h-48'} bg-gray-100 overflow-hidden ${viewMode === 'grid' ? 'rounded-t-lg' : 'rounded-lg'}`}>
-                      <img
-                        src={getProductImage(product.images)}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.target.src = '/api/placeholder/300/300';
-                        }}
-                      />
-                      {product.pricing.discounted_price && product.pricing.discounted_price < product.pricing.price && (
-                        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                          {Math.round(((product.pricing.price - product.pricing.discounted_price) / product.pricing.price) * 100)}% OFF
-                        </div>
-                      )}
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50">
-                          <Heart className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Product Info */}
-                    <div className={viewMode === 'list' ? 'flex-1' : 'p-4'}>
-                      <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                        {product.name}
-                      </h3>
-                      
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="w-4 h-4 text-yellow-400 fill-current"
-                            />
-                          ))}
-                          <span className="text-sm text-gray-500 ml-1">(4.5)</span>
+                {filteredProducts.map((product) => {
+                  const productImage = getProductImage(product.images);
+                  
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => handleProductClick(product)}
+                      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer group ${
+                        viewMode === 'list' ? 'flex gap-4 p-4' : 'overflow-hidden'
+                      }`}
+                    >
+                      {/* Product Image */}
+                      <div className={`relative ${viewMode === 'list' ? 'w-32 h-32 flex-shrink-0' : 'w-full h-48'} bg-gray-100 overflow-hidden ${viewMode === 'grid' ? 'rounded-t-lg' : 'rounded-lg'} flex items-center justify-center`}>
+                        {productImage ? (
+                          <img
+                            src={productImage}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-sm text-center p-4">
+                            No Image Available
+                          </div>
+                        )}
+                        {product.pricing.discounted_price && product.pricing.discounted_price < product.pricing.price && (
+                          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                            {Math.round(((product.pricing.price - product.pricing.discounted_price) / product.pricing.price) * 100)}% OFF
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50">
+                            <Heart className="w-4 h-4 text-gray-600" />
+                          </button>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {product.pricing.discounted_price && product.pricing.discounted_price < product.pricing.price ? (
-                            <>
+                      {/* Product Info */}
+                      <div className={viewMode === 'list' ? 'flex-1' : 'p-4'}>
+                        <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {product.name}
+                        </h3>
+                        
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className="w-4 h-4 text-yellow-400 fill-current"
+                              />
+                            ))}
+                            <span className="text-sm text-gray-500 ml-1">(4.5)</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {product.pricing.discounted_price && product.pricing.discounted_price < product.pricing.price ? (
+                              <>
+                                <span className="text-lg font-bold text-gray-900">
+                                  ${product.pricing.discounted_price.toFixed(2)}
+                                </span>
+                                <span className="text-sm text-gray-500 line-through">
+                                  ${product.pricing.price.toFixed(2)}
+                                </span>
+                              </>
+                            ) : (
                               <span className="text-lg font-bold text-gray-900">
-                                ${product.pricing.discounted_price.toFixed(2)}
-                              </span>
-                              <span className="text-sm text-gray-500 line-through">
                                 ${product.pricing.price.toFixed(2)}
                               </span>
-                            </>
-                          ) : (
-                            <span className="text-lg font-bold text-gray-900">
-                              ${product.pricing.price.toFixed(2)}
-                            </span>
-                          )}
+                            )}
+                          </div>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Add to cart logic here
+                            }}
+                            className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors opacity-0 group-hover:opacity-100"
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                          </button>
                         </div>
-                        
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Add to cart logic here
-                          }}
-                          className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

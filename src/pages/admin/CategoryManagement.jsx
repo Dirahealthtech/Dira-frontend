@@ -64,7 +64,7 @@ const CategoryManagement = () => {
         });
         toast.success('Category updated successfully!');
       } else {
-        await api.post('/api/v1/admin/list-categories', formDataPayload, {
+        await api.post('/api/v1/admin/categories', formDataPayload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

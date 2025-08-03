@@ -82,7 +82,7 @@ const ProductDetails = () => {
 
   const getProductImages = () => {
     if (!product?.images) return [];
-    return product.images.split(',').map(img => img.trim());
+    return product.images.split(',').map(img => `http://localhost:8000/${img.trim()}`);
   };
 
   const formatPrice = (price) => {
@@ -202,7 +202,6 @@ const ProductDetails = () => {
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-                <p className="text-gray-600">SKU: {product.inventory.sku}</p>
               </div>
 
               {/* Price */}
@@ -238,6 +237,21 @@ const ProductDetails = () => {
                   </>
                 )}
               </div>
+
+              {/* Specifications */}
+              {product.metadata?.specifications && (
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Specifications</h3>
+                  <div className="space-y-2">
+                    {Object.entries(product.metadata.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between py-1">
+                        <span className="text-md font-bold text-gray-700 capitalize">{key.replace('_', ' ')}:</span>
+                        <span className="text-sm text-gray-600">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Quantity Selector */}
               <div className="flex items-center space-x-4">
@@ -324,21 +338,6 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
-
-          {/* Specifications */}
-          {product.metadata?.specifications && (
-            <div className="border-t border-gray-200 p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Specifications</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(product.metadata.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="font-medium text-gray-700 capitalize">{key.replace('_', ' ')}:</span>
-                    <span className="text-gray-600">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Tabs */}
           <div className="border-t border-gray-200">

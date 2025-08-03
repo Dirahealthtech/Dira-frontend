@@ -15,6 +15,7 @@ import CustomerDashboard from './pages/customer/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductDetails from './pages/ProductDetails';
 import ProductsPage from './pages/ProductsPage';
+import Home from './pages/Home';
 
 // Component to conditionally render Header and CategoryBar
 const ConditionalHeader = () => {
@@ -72,7 +73,7 @@ function App() {
           <main className="flex-1">
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<div>Home Page - To be implemented</div>} />
+              <Route path="/" element={<Home />} />
               {/* <Route path="/products" element={<ProductsPage />} /> */}
               <Route path="/products/category/:categorySlug" element={<ProductsPage />} />
               <Route path="/products/:productSlug" element={<ProductDetails /> }/>
