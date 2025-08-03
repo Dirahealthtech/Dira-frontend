@@ -4,6 +4,7 @@ import { ShoppingCart, Heart, Share2, Star, Check, AlertCircle,ChevronLeft,Chevr
 import toast from 'react-hot-toast';
 import api from '../auth/api';
 import { useAuth } from '../auth/AuthContext';
+import ProductReviews from './ProductReviews';
 
 const ProductDetails = () => {
   const { productSlug } = useParams();
@@ -371,23 +372,7 @@ const ProductDetails = () => {
                   dangerouslySetInnerHTML={{ __html: product.description }}
                 />
               ) : (
-                <div className="text-center py-12">
-                  <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Reviews Yet</h3>
-                  <p className="text-gray-600">Be the first to review this product</p>
-                  <button
-                    onClick={() => {
-                      if (!user) {
-                        toast.error('Please log in to write a review');
-                        return;
-                      }
-                      toast.info('Review functionality coming soon');
-                    }}
-                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Write a Review
-                  </button>
-                </div>
+                <ProductReviews productId={product.id} />
               )}
             </div>
           </div>
