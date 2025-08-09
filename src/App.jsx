@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './auth/AuthContext';
+import { CartProvider } from './pages/customer/CartContext.jsx';
 import Header from './common/Header';
 import CategoryBar from './common/CategoryBar';
 import ProtectedRoute from './auth/ProtectedRoute';
@@ -16,6 +17,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductDetails from './pages/ProductDetails';
 import ProductsPage from './pages/ProductsPage';
 import Home from './pages/Home';
+import Cart from './pages/customer/Cart'
 
 // Component to conditionally render Header and CategoryBar
 const ConditionalHeader = () => {
@@ -42,80 +44,81 @@ const ConditionalHeader = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Toaster 
-            position="top-center"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#094488',
-                color: '#fff',
-                marginTop: '60px',
-              },
-              success: {
-                duration: 3000,
-                iconTheme: {
-                  primary: '#8ab43f',
-                  secondary: '#fff',
-                },
-              },
-              error: {
+      <CartProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Toaster 
+              position="top-center"
+              toastOptions={{
                 duration: 4000,
-                iconTheme: {
-                  primary: '#8ab43f',
-                  secondary: '#094488',
+                style: {
+                  background: '#094488',
+                  color: '#fff',
+                  marginTop: '60px',
                 },
-              },
-            }}
-          />
-          <ConditionalHeader />
-          <main className="flex-1">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              {/* <Route path="/products" element={<ProductsPage />} /> */}
-              <Route path="/products/category/:categorySlug" element={<ProductsPage />} />
-              <Route path="/products/:productSlug" element={<ProductDetails /> }/>
-              <Route path="/cart" element={<div>Shopping Cart - To be implemented</div>} />
-              <Route path="/search" element={<div>Search Results - To be implemented</div>} />
-              
-              {/* Auth Routes */}
-              <Route element={<PublicRoute />}>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/api/v1/auth/confirm-reset-password/:token" element={<ResetPassword />} />
-                <Route path="/api/v1/auth/verify-account/:token" element={<VerifyEmail />} />
-              </Route>
-              
-              {/* Protected Customer Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
-                <Route path="/account/*" element={<CustomerDashboard />} />
-                <Route path="/checkout" element={<div>Checkout - To be implemented</div>} />
-              </Route>
-              
-              {/* Protected Admin Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                <Route path="/admin/*" element={<AdminDashboard />} />
-              </Route>
-              
-              {/* Protected Service Tech Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['service_tech']} />}>
-                <Route path="/service/*" element={<div>Service Tech Dashboard - To be implemented</div>} />
-              </Route>
-              
-              {/* Protected Supplier Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['supplier']} />}>
-                <Route path="/supplier/*" element={<div>Supplier Dashboard - To be implemented</div>} />
-              </Route>
-              
-              {/* Catch all */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+                success: {
+                  duration: 3000,
+                  iconTheme: {
+                    primary: '#8ab43f',
+                    secondary: '#fff',
+                  },
+                },
+                error: {
+                  duration: 4000,
+                  iconTheme: {
+                    primary: '#8ab43f',
+                    secondary: '#094488',
+                  },
+                },
+              }}
+            />
+            <ConditionalHeader />
+            <main className="flex-1">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/products/category/:categorySlug" element={<ProductsPage />} />
+                <Route path="/products/:productSlug" element={<ProductDetails /> }/>
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/search" element={<div>Search Results - To be implemented</div>} />
+                
+                {/* Auth Routes */}
+                <Route element={<PublicRoute />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/api/v1/auth/confirm-reset-password/:token" element={<ResetPassword />} />
+                  <Route path="/api/v1/auth/verify-account/:token" element={<VerifyEmail />} />
+                </Route>
+                
+                {/* Protected Customer Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
+                  <Route path="/account/*" element={<CustomerDashboard />} />
+                  <Route path="/checkout" element={<div>Checkout - To be implemented</div>} />
+                </Route>
+                
+                {/* Protected Admin Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                  <Route path="/admin/*" element={<AdminDashboard />} />
+                </Route>
+                
+                {/* Protected Service Tech Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['service_tech']} />}>
+                  <Route path="/service/*" element={<div>Service Tech Dashboard - To be implemented</div>} />
+                </Route>
+                
+                {/* Protected Supplier Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['supplier']} />}>
+                  <Route path="/supplier/*" element={<div>Supplier Dashboard - To be implemented</div>} />
+                </Route>
+                
+                {/* Catch all */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </CartProvider> {/* Close CartProvider */}
     </AuthProvider>
   );
 }

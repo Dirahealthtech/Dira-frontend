@@ -72,7 +72,7 @@ const HomepageSectionsAdmin = () => {
 
     try {
       if (editingSection) {
-        await api.put(`/api/v1/homepage-sections/admin/${editingSection.id}`, payload);
+        await api.patch(`/api/v1/homepage-sections/admin/${editingSection.id}`, payload);
         toast.success('Section updated successfully');
       } else {
         await api.post('/api/v1/homepage-sections/admin', payload);

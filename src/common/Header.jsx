@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { ShoppingCart, User, Menu, X, LogOut, LayoutDashboard, Heart, Search, Phone, ChevronDown } from 'lucide-react';
+import { useCart } from '../pages/customer/CartContext';
+import { User, Menu, X, LogOut, LayoutDashboard, Heart, Search, Phone, ChevronDown, ShoppingCart } from 'lucide-react';
 
 const Header = () => {
   const { user, logout, isLoading } = useAuth();
+  const { itemCount, isLoading: cartIsLoading } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -168,16 +170,34 @@ const Header = () => {
                 <Search className="h-6 w-6" />
               </button>
 
-              {/* Cart */}
-              <Link
-                to="/cart"
-                className="relative p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
-                aria-label="Shopping cart"
-              >
-                <ShoppingCart className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[#094488] text-white text-xs flex items-center justify-center">
-                  0
-                </span>
+              {/* Cart Icon */}
+              <Link to="/cart" className="relative inline-block" aria-label="Shopping cart">
+                <div
+                  className="relative p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
+                  title="Shopping Cart"
+                  aria-label={`Shopping cart with ${itemCount} items`}
+                >
+                  <ShoppingCart className="h-6 w-6" />
+                  
+                  {/* Item Count Badge */}
+                  {itemCount > 0 && (
+                    <span 
+                      className={`
+                        absolute -top-1 -right-1 bg-[#094488] text-white text-xs font-bold
+                        min-w-[1.25rem] h-5 rounded-full flex items-center justify-center
+                        ${cartIsLoading ? 'animate-pulse' : ''}
+                        ${itemCount > 99 ? 'text-[10px] px-1' : ''}
+                      `}
+                    >
+                      {itemCount > 99 ? '99+' : itemCount}
+                    </span>
+                  )}
+                  
+                  {/* Loading indicator */}
+                  {cartIsLoading && itemCount === 0 && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#094488] rounded-full animate-ping" />
+                  )}
+                </div>
               </Link>
 
               {/* User Menu */}
@@ -322,10 +342,26 @@ const Header = () => {
                   <Link
                     to="/cart"
                     onClick={() => setSidebarOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
-                      isActive('/cart') ? 'bg-gray-100' : ''
-                    }`}
+                    className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
                   >
+                    <div className="relative p-2 text-gray-600 mr-2">
+                      <ShoppingCart className="h-6 w-6" />
+                      {itemCount > 0 && (
+                        <span 
+                          className={`
+                            absolute -top-1 -right-1 bg-[#094488] text-white text-xs font-bold
+                            min-w-[1.25rem] h-5 rounded-full flex items-center justify-center
+                            ${cartIsLoading ? 'animate-pulse' : ''}
+                            ${itemCount > 99 ? 'text-[10px] px-1' : ''}
+                          `}
+                        >
+                          {itemCount > 99 ? '99+' : itemCount}
+                        </span>
+                      )}
+                      {cartIsLoading && itemCount === 0 && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#094488] rounded-full animate-ping" />
+                      )}
+                    </div>
                     Cart
                   </Link>
                 </li>
