@@ -8,6 +8,7 @@ const HomepageSectionsAdmin = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
@@ -15,10 +16,11 @@ const HomepageSectionsAdmin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [displayOrderError, setDisplayOrderError] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    display_order: 0,
+    display_order: '',
     is_active: true,
     product_ids: []
   });
@@ -26,7 +28,7 @@ const HomepageSectionsAdmin = () => {
   // Fetch sections
   const fetchSections = async () => {
     try {
-      const response = await api.get('/api/v1/homepage-sections');
+      const response = await api.get('/api/v1/homepage-sections?active_only=false');
       const sortedSections = response.data.sort((a, b) => a.display_order - b.display_order);
       setSections(sortedSections);
     } catch (error) {
@@ -62,11 +64,54 @@ const HomepageSectionsAdmin = () => {
     fetchSections();
   }, []);
 
+  // Validate display order
+  const validateDisplayOrder = (value, excludeCurrentSection = false) => {
+    if (value === '') {
+      setDisplayOrderError('');
+      return true;
+    }
+
+    const numValue = parseInt(value);
+    if (isNaN(numValue)) {
+      setDisplayOrderError('Display order must be a number');
+      return false;
+    }
+
+    if (numValue < 0) {
+      setDisplayOrderError('Display order must be 0 or greater');
+      return false;
+    }
+
+    // Check for duplicates
+    const existingSections = excludeCurrentSection && editingSection 
+      ? sections.filter(s => s.id !== editingSection.id)
+      : sections;
+    
+    const isDuplicate = existingSections.some(section => section.display_order === numValue);
+    
+    if (isDuplicate) {
+      setDisplayOrderError(`Display order ${numValue} is already used by another section`);
+      return false;
+    }
+
+    setDisplayOrderError('');
+    return true;
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate display order before submission
+    const displayOrderValue = formData.display_order === '' ? 0 : parseInt(formData.display_order);
+    if (!validateDisplayOrder(displayOrderValue, true)) {
+      return;
+    }
+
+    setSubmitting(true);
     const payload = {
       ...formData,
+      display_order: displayOrderValue,
       product_ids: selectedProducts.map(p => p.id)
     };
 
@@ -93,6 +138,8 @@ const HomepageSectionsAdmin = () => {
       } else {
         toast.error(error.response?.data?.detail || 'Operation failed');
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -114,7 +161,7 @@ const HomepageSectionsAdmin = () => {
     setFormData({
       title: '',
       description: '',
-      display_order: 0,
+      display_order: '',
       is_active: true,
       product_ids: []
     });
@@ -123,12 +170,13 @@ const HomepageSectionsAdmin = () => {
     setSearchQuery('');
     setProducts([]);
     setHasSearched(false);
+    setDisplayOrderError('');
   };
 
   // Open create modal
   const openCreateModal = () => {
     resetForm();
-    setFormData(prev => ({ ...prev, display_order: sections.length }));
+    setFormData(prev => ({ ...prev, display_order: sections.length.toString() }));
     setShowModal(true);
   };
 
@@ -138,7 +186,7 @@ const HomepageSectionsAdmin = () => {
     setFormData({
       title: section.title,
       description: section.description,
-      display_order: section.display_order,
+      display_order: section.display_order.toString(),
       is_active: section.is_active,
       product_ids: section.products?.map(p => p.id) || []
     });
@@ -146,6 +194,7 @@ const HomepageSectionsAdmin = () => {
     setSearchQuery('');
     setProducts([]);
     setHasSearched(false);
+    setDisplayOrderError('');
     setShowModal(true);
   };
 
@@ -327,12 +376,24 @@ const HomepageSectionsAdmin = () => {
                     Display Order
                   </label>
                   <input
-                    type="number"
-                    min="0"
+                    type="text"
                     value={formData.display_order}
-                    onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#094488] focus:border-transparent"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow empty string or numbers only
+                      if (value === '' || /^\d+$/.test(value)) {
+                        setFormData(prev => ({ ...prev, display_order: value }));
+                        validateDisplayOrder(value, true);
+                      }
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#094488] focus:border-transparent ${
+                      displayOrderError ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="0"
                   />
+                  {displayOrderError && (
+                    <p className="text-red-600 text-xs mt-1">{displayOrderError}</p>
+                  )}
                 </div>
               </div>
 
@@ -470,15 +531,25 @@ const HomepageSectionsAdmin = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={submitting}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[#094488] text-white rounded-lg hover:bg-[#073a75] transition-colors"
+                  disabled={submitting || displayOrderError !== ''}
+                  className="px-6 py-2 bg-[#094488] text-white rounded-lg hover:bg-[#073a75] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
-                  {editingSection ? 'Update Section' : 'Create Section'}
+                  {submitting && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  )}
+                  <span>
+                    {submitting 
+                      ? (editingSection ? 'Updating...' : 'Creating...') 
+                      : (editingSection ? 'Update Section' : 'Create Section')
+                    }
+                  </span>
                 </button>
               </div>
             </form>

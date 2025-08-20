@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Heart, Star, TrendingUp, Award, Users, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Heart, Star, TrendingUp, Award, Users, ArrowRight, ImageIcon } from 'lucide-react';
 import AddToCartButton from './customer/AddToCartButton';
 import toast from 'react-hot-toast';
 import api from '../auth/api';
@@ -48,9 +48,9 @@ const Home = () => {
   };
 
   const getFirstImage = (images) => {
-    if (!images) return '/api/placeholder/300/300';
+    if (!images) return null;
     const imageArray = images.split(',');
-    return imageArray[0]?.trim() || '/api/placeholder/300/300';
+    return imageArray[0]?.trim() || null;
   };
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
@@ -62,6 +62,7 @@ const Home = () => {
     const [imageError, setImageError] = useState(false);
     const discount = calculateDiscount(product.price, product.discounted_price);
     const finalPrice = product.discounted_price || product.price;
+    const firstImage = getFirstImage(product.images);
 
     return (
       <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200">
@@ -80,12 +81,18 @@ const Home = () => {
           onClick={() => handleProductClick(product.slug)}
         >
           <div className="aspect-square p-4">
-            <img
-              src={imageError ? '/api/placeholder/300/300' : getFirstImage(product.images)}
-              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-              onError={() => setImageError(true)}
-              loading="lazy"
-            />
+            {firstImage && !imageError ? (
+              <img
+                src={firstImage}
+                className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                onError={() => setImageError(true)}
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded">
+                <ImageIcon className="w-16 h-16 text-gray-400" />
+              </div>
+            )}
           </div>
           
           {/* Wishlist Button */}
@@ -167,8 +174,6 @@ const Home = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center space-y-6 max-w-md mx-auto p-8">
-          <div className="text-8xl">⚠️</div>
-          <h2 className="text-3xl font-bold text-gray-800">Oops! Something went wrong</h2>
           <p className="text-gray-600 text-lg">{error}</p>
           <button
             onClick={fetchHomepageSections}

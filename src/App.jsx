@@ -15,7 +15,7 @@ import VerifyEmail from './auth/VerifyEmail';
 import CustomerDashboard from './pages/customer/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductDetails from './pages/ProductDetails';
-import ProductsPage from './pages/ProductsPage';
+import ProductsOfCategory from './pages/ProductsOfCategory';
 import Home from './pages/Home';
 import Cart from './pages/customer/Cart'
 
@@ -77,7 +77,7 @@ function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
-                <Route path="/products/category/:categorySlug" element={<ProductsPage />} />
+                <Route path="/products/category/:categorySlug" element={<ProductsOfCategory />} />
                 <Route path="/products/:productSlug" element={<ProductDetails /> }/>
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/search" element={<div>Search Results - To be implemented</div>} />

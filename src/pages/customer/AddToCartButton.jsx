@@ -96,7 +96,7 @@ const AddToCartButton = ({
         disabled={disabled || isLoading || isAdding || !isAuthenticated}
         className={`
           ${currentSize.button} 
-          ${currentVariant} 
+          ${currentVariant} w-full
           rounded-lg font-medium transition-all duration-200 
           disabled:cursor-not-allowed disabled:opacity-50
           flex items-center justify-center space-x-2
