@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Plus, Minus, Trash2, Tag, ArrowRight,Package,Percent,ArrowLeft,CreditCard} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Plus, Minus, Trash2, Tag, ArrowRight, Package, Percent, ArrowLeft, CreditCard } from 'lucide-react';
 import { useCart } from './CartContext.jsx';
 import { useAuth } from '../../auth/AuthContext.jsx';
 
 const Cart = () => {
   const { cart, itemCount, isLoading, updateQuantity, removeItem, clearCart, applyCoupon } = useCart();
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [couponCode, setCouponCode] = useState('');
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
@@ -22,7 +24,8 @@ const Cart = () => {
     await updateQuantity(itemId, newQuantity);
   };
 
-  const handleApplyCoupon = async () => {
+  const handleApplyCoupon = async (e) => {
+    e.preventDefault();
     if (!couponCode.trim()) return;
     
     setApplyingCoupon(true);
@@ -33,11 +36,57 @@ const Cart = () => {
     setApplyingCoupon(false);
   };
 
-  const handleClearCart = async () => {
+  const handleClearCart = async (e) => {
+    e.preventDefault();
     if (window.confirm('Are you sure you want to clear your cart?')) {
       await clearCart();
     }
   };
+
+  // Enhanced checkout handler with better error handling
+  const handleCheckout = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Checkout button clicked - navigation starting');
+    
+    // Validation checks
+    if (!isAuthenticated) {
+      console.log('User not authenticated, redirecting to login');
+      navigate('/login');
+      return;
+    }
+    
+    if (!cart?.items || cart.items.length === 0) {
+      console.log('Cart is empty, cannot proceed');
+      alert('Your cart is empty. Please add items before checkout.');
+      return;
+    }
+    
+    if (isLoading) {
+      console.log('Cart is still loading, please wait');
+      alert('Please wait while cart loads...');
+      return;
+    }
+
+    console.log('All validation checks passed, attempting navigation...');
+    
+    // Use setTimeout to ensure the navigation happens after the current event loop
+    setTimeout(() => {
+      try {
+        console.log('Navigating to checkout...');
+        navigate('/checkout');
+        console.log('Navigation called successfully');
+      } catch (error) {
+        console.error('Navigation error:', error);
+        // Fallback to window.location
+        window.location.href = '/checkout';
+      }
+    }, 0);
+  };
+
+  // Check if checkout should be enabled
+  const isCheckoutEnabled = isAuthenticated && !isLoading && cart?.items && cart.items.length > 0;
 
   if (!isAuthenticated) {
     return (
@@ -48,19 +97,19 @@ const Cart = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Sign in to view your cart</h1>
             <p className="text-gray-600 mb-8">Please login to see your cart items and continue shopping</p>
             <div className="space-x-4">
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center space-x-2"
               >
                 <span>Sign In</span>
-              </a>
-              <a
-                href="/"
+              </Link>
+              <Link
+                to="/"
                 className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span>Continue Shopping</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -87,13 +136,13 @@ const Cart = () => {
             <Package className="h-24 w-24 text-gray-300 mx-auto mb-6" />
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
             <p className="text-gray-600 mb-8">Looks like you haven't added anything to your cart yet</p>
-            <a
-              href="/"
+            <Link
+              to="/"
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Continue Shopping</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -113,13 +162,13 @@ const Cart = () => {
                 {itemCount} {itemCount === 1 ? 'item' : 'items'}
               </span>
             </div>
-            <a
-              href="/"
+            <Link
+              to="/"
               className="text-blue-600 hover:text-blue-700 flex items-center space-x-2 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Continue Shopping</span>
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -132,6 +181,7 @@ const Cart = () => {
                   <h2 className="text-xl font-semibold text-gray-900">Cart Items</h2>
                   {cart.items.length > 0 && (
                     <button
+                      type="button"
                       onClick={handleClearCart}
                       disabled={isLoading}
                       className="text-red-600 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
@@ -178,6 +228,7 @@ const Cart = () => {
                               <span className="text-sm text-gray-600">Quantity:</span>
                               <div className="flex items-center border border-gray-300 rounded-lg">
                                 <button
+                                  type="button"
                                   onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
                                   disabled={isLoading || item.quantity <= 1}
                                   className="p-2 hover:bg-gray-50 disabled:opacity-50 transition-colors rounded-l-lg"
@@ -188,6 +239,7 @@ const Cart = () => {
                                   {item.quantity}
                                 </span>
                                 <button
+                                  type="button"
                                   onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
                                   disabled={isLoading}
                                   className="p-2 hover:bg-gray-50 disabled:opacity-50 transition-colors rounded-r-lg"
@@ -199,6 +251,7 @@ const Cart = () => {
 
                             {/* Remove Button */}
                             <button
+                              type="button"
                               onClick={() => removeItem(item.id)}
                               disabled={isLoading}
                               className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
@@ -246,23 +299,22 @@ const Cart = () => {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <form onSubmit={handleApplyCoupon} className="space-y-3">
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                     placeholder="Enter coupon code"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    onKeyPress={(e) => e.key === 'Enter' && handleApplyCoupon()}
                   />
                   <button
-                    onClick={handleApplyCoupon}
+                    type="submit"
                     disabled={!couponCode.trim() || applyingCoupon}
                     className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
                   >
                     {applyingCoupon ? 'Applying...' : 'Apply Coupon'}
                   </button>
-                </div>
+                </form>
               )}
             </div>
 
@@ -298,14 +350,23 @@ const Cart = () => {
                 </div>
               </div>
 
-              <button
-                disabled={isLoading || cart.items.length === 0}
-                className="w-full mt-6 bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center space-x-2 text-lg"
-              >
-                <CreditCard className="h-5 w-5" />
-                <span>Proceed to Checkout</span>
-                <ArrowRight className="h-5 w-5" />
-              </button>
+              {/* Standalone checkout button - NOT inside any form */}
+              <div className="mt-6">
+                <button
+                  type="button"
+                  onClick={handleCheckout}
+                  disabled={!isCheckoutEnabled}
+                  className={`w-full py-4 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 text-lg ${
+                    isCheckoutEnabled
+                      ? 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                      : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  }`}
+                >
+                  <CreditCard className="h-5 w-5" />
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </div>
 
               <p className="text-xs text-gray-500 text-center mt-3">
                 Secure checkout with SSL encryption

@@ -18,6 +18,7 @@ import ProductDetails from './pages/ProductDetails';
 import ProductsOfCategory from './pages/ProductsOfCategory';
 import Home from './pages/Home';
 import Cart from './pages/customer/Cart'
+import Checkout from './pages/customer/Checkout.jsx';
 
 // Component to conditionally render Header and CategoryBar
 const ConditionalHeader = () => {
@@ -94,7 +95,7 @@ function App() {
                 {/* Protected Customer Routes */}
                 <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
                   <Route path="/account/*" element={<CustomerDashboard />} />
-                  <Route path="/checkout" element={<div>Checkout - To be implemented</div>} />
+                  <Route path="/checkout" element={<Checkout />} />
                 </Route>
                 
                 {/* Protected Admin Routes */}
