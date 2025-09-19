@@ -81,6 +81,7 @@ function App() {
                 <Route path="/products/category/:categorySlug" element={<ProductsOfCategory />} />
                 <Route path="/products/:productSlug" element={<ProductDetails /> }/>
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
                 <Route path="/search" element={<div>Search Results - To be implemented</div>} />
                 
                 {/* Auth Routes */}

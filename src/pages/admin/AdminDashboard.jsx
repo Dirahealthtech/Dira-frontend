@@ -5,6 +5,7 @@ import {LayoutDashboard,Users,Package,ShoppingCart,BarChart3,Settings,LogOut,Men
 import ProductManagement from "./ProductManagement"
 import CategoryManagement from "./CategoryManagement"
 import HomepageSectionsAdmin from './HomepageSectionsAdmin';
+import OrderManagement from './OrderManagement';
 
 // Admin Dashboard Main Component
 const AdminDashboard = () => {
@@ -165,7 +166,7 @@ const AdminDashboard = () => {
             <Route path="/categories" element={<CategoryManagement /> } />
             <Route path="/products" element={<ProductManagement /> } />
             <Route path="/sections" element={<HomepageSectionsAdmin /> } />
-            <Route path="/orders" element={<>Hello </>} />
+            <Route path="/orders" element={<OrderManagement />} />
             <Route path="/analytics" element={<>Hello </>} />
             <Route path="/settings" element={<>Hello </>} />
           </Routes>

@@ -48,8 +48,6 @@ const Cart = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('Checkout button clicked - navigation starting');
-    
     // Validation checks
     if (!isAuthenticated) {
       console.log('User not authenticated, redirecting to login');
@@ -58,28 +56,21 @@ const Cart = () => {
     }
     
     if (!cart?.items || cart.items.length === 0) {
-      console.log('Cart is empty, cannot proceed');
       alert('Your cart is empty. Please add items before checkout.');
       return;
     }
     
     if (isLoading) {
-      console.log('Cart is still loading, please wait');
       alert('Please wait while cart loads...');
       return;
     }
-
-    console.log('All validation checks passed, attempting navigation...');
     
     // Use setTimeout to ensure the navigation happens after the current event loop
     setTimeout(() => {
       try {
         console.log('Navigating to checkout...');
         navigate('/checkout');
-        console.log('Navigation called successfully');
       } catch (error) {
-        console.error('Navigation error:', error);
-        // Fallback to window.location
         window.location.href = '/checkout';
       }
     }, 0);

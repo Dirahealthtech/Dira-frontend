@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Heart, Star, TrendingUp, Award, Users, ArrowRight, ImageIcon } from 'lucide-react';
-import AddToCartButton from './customer/AddToCartButton';
+import { ShoppingBag, Award, Users, ArrowRight } from 'lucide-react';
+import ProductCard from './ProductCard'; // Import the new component
 import toast from 'react-hot-toast';
 import api from '../auth/api';
 
@@ -9,6 +9,7 @@ const Home = () => {
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [favorites, setFavorites] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,107 +36,14 @@ const Home = () => {
     }
   };
 
-  const handleProductClick = (productSlug) => {
-    navigate(`/products/${productSlug}`);
-  };
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
-  const getFirstImage = (images) => {
-    if (!images) return null;
-    const imageArray = images.split(',');
-    return imageArray[0]?.trim() || null;
-  };
-
-  const calculateDiscount = (originalPrice, discountedPrice) => {
-    if (!discountedPrice || discountedPrice >= originalPrice) return 0;
-    return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
-  };
-
-  const ProductCard = ({ product }) => {
-    const [imageError, setImageError] = useState(false);
-    const discount = calculateDiscount(product.price, product.discounted_price);
-    const finalPrice = product.discounted_price || product.price;
-    const firstImage = getFirstImage(product.images);
-
-    return (
-      <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200">
-        {/* Discount Badge */}
-        {discount > 0 && (
-          <div className="relative">
-            <div className="absolute top-2 left-2 bg-[#8ab43f] text-white px-2 py-1 rounded text-xs font-medium z-10">
-              {discount}% off
-            </div>
-          </div>
-        )}
-        
-        {/* Image Container */}
-        <div 
-          className="relative overflow-hidden cursor-pointer bg-white"
-          onClick={() => handleProductClick(product.slug)}
-        >
-          <div className="aspect-square p-4">
-            {firstImage && !imageError ? (
-              <img
-                src={firstImage}
-                className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                onError={() => setImageError(true)}
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded">
-                <ImageIcon className="w-16 h-16 text-gray-400" />
-              </div>
-            )}
-          </div>
-          
-          {/* Wishlist Button */}
-          <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow duration-200">
-            <Heart className="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors" />
-          </button>
-        </div>
-
-        {/* Product Info */}
-        <div className="p-4 border-t border-gray-100">
-          {/* Product Name */}
-          <h3 
-            className="font-medium text-[#094488] line-clamp-2 cursor-pointer text-sm mb-2"
-            onClick={() => handleProductClick(product.slug)}
-          >
-            {product.name}
-          </h3>
-
-          {/* Price */}
-          <div className="space-y-1 mb-3">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-gray-900">
-                {formatPrice(finalPrice)}
-              </span>
-              {product.discounted_price && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.price)}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Add to Cart Button */}
-          <AddToCartButton
-            productId={product.id}
-            size="medium"
-            variant="primary"
-            className="w-full transform hover:scale-105 transition-transform duration-200"
-            onSuccess={() => toast.success(`${product.name} added to cart!`)}
-          />
-        </div>
-      </div>
-    );
+  const handleFavoriteToggle = (productId) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(productId)) {
+      newFavorites.delete(productId);
+    } else {
+      newFavorites.add(productId);
+    }
+    setFavorites(newFavorites);
   };
 
   if (loading) {
@@ -232,10 +140,10 @@ const Home = () => {
             {sections.map((section, index) => (
               <section key={section.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {/* Section Header */}
-                <div className=" px-6 py-4 border-b border-[#B8D586]">
+                <div className="px-6 py-4 border-b border-[#B8D586]">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#8ab43f]">{section.title}</h2>
-                    <button className="flex items-center space-x-2 text-[#8ab43f]  transition-colors group">
+                    <button className="flex items-center space-x-2 text-[#8ab43f] transition-colors group">
                       <span className="font-medium">View All</span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
@@ -247,7 +155,14 @@ const Home = () => {
                   {section.products.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                       {section.products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          viewMode="grid"
+                          onFavoriteToggle={handleFavoriteToggle}
+                          isFavorite={favorites.has(product.id)}
+                          showDiscount={true}
+                        />
                       ))}
                     </div>
                   ) : (
@@ -262,7 +177,6 @@ const Home = () => {
           </div>
         )}
       </div>
-      
     </div>
   );
 };
