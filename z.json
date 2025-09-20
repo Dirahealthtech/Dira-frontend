@@ -1,0 +1,48 @@
+{
+    "id": 1,
+    "first_name": "Omar",
+    "last_name": "Abdi",
+    "email": "user@example.com",
+    "phone_number": "+254712345678",
+    "role": "customer",
+    "is_verified": true,
+    "status": "active",
+    "created_at": "2025-09-14T14:44:49.100820Z",
+    "updated_at": "2025-09-14T14:44:49.100820Z",
+    "total_orders": 3,
+    "total_spent": 224400.0,
+    "last_order_date": "2025-09-15T13:41:44.526119",
+    "last_login": null,
+    "customer_profile": null,
+    "recent_orders": [
+        {
+            "id": 3,
+            "order_number": "ORDER-7DC865A0",
+            "status": "pending",
+            "total": 40800.0,
+            "payment_status": "pending",
+            "created_at": "2025-09-15T13:41:44.526119",
+            "items_count": 1
+        },
+        {
+            "id": 2,
+            "order_number": "ORDER-A1460CE7",
+            "status": "pending",
+            "total": 163200.0,
+            "payment_status": "pending",
+            "created_at": "2025-09-15T13:39:00.026346",
+            "items_count": 1
+        },
+        {
+            "id": 1,
+            "order_number": "ORDER-45BEBA87",
+            "status": "pending",
+            "total": 20400.0,
+            "payment_status": "pending",
+            "created_at": "2025-09-15T12:39:09.475464",
+            "items_count": 1
+        }
+    ],
+    "total_reviews": 0,
+    "shipping_addresses": []
+}

@@ -6,6 +6,8 @@ import ProductManagement from "./ProductManagement"
 import CategoryManagement from "./CategoryManagement"
 import HomepageSectionsAdmin from './HomepageSectionsAdmin';
 import OrderManagement from './OrderManagement';
+import OrderDetails from './OrderDetails';
+import CustomerDetails from './CustomerDetails';
 
 // Admin Dashboard Main Component
 const AdminDashboard = () => {
@@ -167,6 +169,8 @@ const AdminDashboard = () => {
             <Route path="/products" element={<ProductManagement /> } />
             <Route path="/sections" element={<HomepageSectionsAdmin /> } />
             <Route path="/orders" element={<OrderManagement />} />
+            <Route path="/orders/:orderId" element={<OrderDetails />} />
+            <Route path="/customers/:customerId" element={<CustomerDetails />} />
             <Route path="/analytics" element={<>Hello </>} />
             <Route path="/settings" element={<>Hello </>} />
           </Routes>

@@ -1,44 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  ShoppingCart,
-  Eye,
-  Edit,
-  Trash2,
-  Filter,
-  Download,
-  RefreshCw,
-  Search,
-  Calendar,
-  DollarSign,
-  Package,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  CreditCard,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Truck,
-  ChevronDown,
-  ChevronUp,
-  MoreHorizontal,
-  FileText,
-  Printer,
-  Send,
-  ArrowUpDown,
-  ChevronLeft,
-  ChevronRight
+  ShoppingCart, Eye, Filter, Download, RefreshCw, Search, DollarSign, 
+  Package, Phone, CreditCard, Clock, CheckCircle, XCircle, AlertCircle, 
+  Truck, ChevronDown, ChevronUp, MoreHorizontal, Printer, Send, 
+  ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, User, ExternalLink
 } from 'lucide-react';
 import api from '../../auth/api';
 
 const OrderManagement = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   
   // Pagination
@@ -151,7 +125,7 @@ const OrderManagement = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
   };
 
   const handleSort = (column) => {
@@ -185,14 +159,9 @@ const OrderManagement = () => {
     
     setActionLoading(true);
     try {
-      // Implement bulk actions here
       console.log(`Performing ${bulkAction} on orders:`, selectedOrders);
-      
-      // Reset selections
       setSelectedOrders([]);
       setBulkAction('');
-      
-      // Refresh orders
       await fetchOrders();
     } catch (err) {
       setError(`Failed to perform bulk action: ${err.message}`);
@@ -201,22 +170,18 @@ const OrderManagement = () => {
     }
   };
 
-  const handleViewOrder = async (orderId) => {
-    try {
-      // In a real app, you'd fetch detailed order info
-      const order = orders.find(o => o.id === orderId);
-      setSelectedOrder(order);
-      setShowOrderDetails(true);
-    } catch (err) {
-      setError(`Failed to load order details: ${err.message}`);
-    }
+  const handleViewOrder = (orderId) => {
+    navigate(`/admin/orders/${orderId}`);
+  };
+
+  const handleViewCustomer = (customerId) => {
+    navigate(`/admin/customers/${customerId}`);
   };
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      // Implement status update API call
       console.log(`Updating order ${orderId} status to ${newStatus}`);
-      await fetchOrders(); // Refresh orders
+      await fetchOrders();
     } catch (err) {
       setError(`Failed to update order status: ${err.message}`);
     }
@@ -237,7 +202,6 @@ const OrderManagement = () => {
 
   const exportOrders = async () => {
     try {
-      // Implement export functionality
       console.log('Exporting orders...');
     } catch (err) {
       setError(`Failed to export orders: ${err.message}`);
@@ -377,7 +341,15 @@ const OrderManagement = () => {
         </td>
 
         <td className="px-6 py-4">
-          <div className="text-sm text-gray-900">Customer #{order.customer_id}</div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handleViewCustomer(order.customer_id)}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Customer #{order.customer_id}
+            </button>
+            <ExternalLink className="w-3 h-3 text-gray-400" />
+          </div>
           <div className="text-xs text-gray-500">
             {formatDate(order.created_at)}
           </div>
@@ -454,6 +426,13 @@ const OrderManagement = () => {
                     <Send className="w-4 h-4 inline mr-2" />
                     Send Email
                   </button>
+                  <button
+                    onClick={() => handleViewCustomer(order.customer_id)}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <User className="w-4 h-4 inline mr-2" />
+                    View Customer
+                  </button>
                 </div>
               </div>
             </div>
@@ -462,129 +441,6 @@ const OrderManagement = () => {
       </tr>
     );
   };
-
-  const renderOrderDetails = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Order Details - #{selectedOrder?.order_number}
-          </h2>
-          <button
-            onClick={() => setShowOrderDetails(false)}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <XCircle className="w-6 h-6" />
-          </button>
-        </div>
-        
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Order Information */}
-            <div className="space-y-6">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Order Information</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Order ID:</span>
-                    <span className="font-medium">#{selectedOrder?.order_number}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Date:</span>
-                    <span className="font-medium">{formatDate(selectedOrder?.created_at)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Status:</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${ORDER_STATUSES[selectedOrder?.status]?.color}`}>
-                      {ORDER_STATUSES[selectedOrder?.status]?.label}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Payment Method:</span>
-                    <span className="font-medium">{PAYMENT_METHODS[selectedOrder?.payment_method]?.label}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Payment Status:</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${PAYMENT_STATUSES[selectedOrder?.payment_status]?.color}`}>
-                      {PAYMENT_STATUSES[selectedOrder?.payment_status]?.label}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Customer Information */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Customer ID: #{selectedOrder?.customer_id}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Email: customer@example.com</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Phone className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-gray-600">Phone: +254 7XX XXX XXX</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Summary */}
-            <div className="space-y-6">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Order Summary</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-medium">{formatPrice(selectedOrder?.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tax:</span>
-                    <span className="font-medium">{formatPrice(selectedOrder?.tax)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping:</span>
-                    <span className="font-medium">{formatPrice(selectedOrder?.shipping_cost)}</span>
-                  </div>
-                  {selectedOrder?.discount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-green-600">Discount:</span>
-                      <span className="font-medium text-green-600">-{formatPrice(selectedOrder?.discount)}</span>
-                    </div>
-                  )}
-                  <div className="border-t border-gray-200 pt-3">
-                    <div className="flex justify-between text-lg font-bold">
-                      <span>Total:</span>
-                      <span className="text-blue-600">{formatPrice(selectedOrder?.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-                <div className="space-y-2">
-                  <button className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
-                    Update Status
-                  </button>
-                  <button className="w-full bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors">
-                    Print Invoice
-                  </button>
-                  <button className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors">
-                    Send Email Update
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderPagination = () => (
     <div className="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
@@ -673,23 +529,63 @@ const OrderManagement = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Orders', value: totalOrders, icon: ShoppingCart, color: 'text-blue-600' },
-          { label: 'Pending', value: orders.filter(o => o.status === 'pending').length, icon: Clock, color: 'text-yellow-600' },
-          { label: 'Processing', value: orders.filter(o => o.status === 'processing').length, icon: Package, color: 'text-blue-600' },
-          { label: 'Delivered', value: orders.filter(o => o.status === 'delivered').length, icon: CheckCircle, color: 'text-green-600' }
+          { 
+            label: 'Total Orders', 
+            value: totalOrders, 
+            icon: ShoppingCart, 
+            color: 'text-blue-600',
+            bgColor: 'bg-blue-50',
+            change: '+12%',
+            changeColor: 'text-green-600'
+          },
+          { 
+            label: 'Pending Orders', 
+            value: orders.filter(o => o.status === 'pending').length, 
+            icon: Clock, 
+            color: 'text-yellow-600',
+            bgColor: 'bg-yellow-50',
+            change: '+5%',
+            changeColor: 'text-green-600'
+          },
+          { 
+            label: 'Processing', 
+            value: orders.filter(o => o.status === 'processing').length, 
+            icon: Package, 
+            color: 'text-blue-600',
+            bgColor: 'bg-blue-50',
+            change: '+8%',
+            changeColor: 'text-green-600'
+          },
+          { 
+            label: 'Revenue', 
+            value: formatPrice(orders.reduce((sum, order) => sum + (order.total || 0), 0)), 
+            icon: DollarSign, 
+            color: 'text-green-600',
+            bgColor: 'bg-green-50',
+            change: '+15%',
+            changeColor: 'text-green-600'
+          }
         ].map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-lg shadow p-6">
+            <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center">
-                <div className="p-2 rounded-lg bg-gray-100">
+                <div className={`p-3 rounded-full ${stat.bgColor}`}>
                   <Icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
-                <div className="ml-4">
+                <div className="ml-4 flex-1">
                   <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <div className="flex items-center">
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    {stat.change && (
+                      <span className={`ml-2 text-sm ${stat.changeColor} flex items-center`}>
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        {stat.change}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -859,10 +755,8 @@ const OrderManagement = () => {
           </>
         )}
       </div>
-
-      {/* Order Details Modal */}
-      {showOrderDetails && selectedOrder && renderOrderDetails()}
     </div>
-  )
+  );
 };
+
 export default OrderManagement;
