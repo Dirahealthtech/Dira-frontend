@@ -8,6 +8,9 @@ import HomepageSectionsAdmin from './HomepageSectionsAdmin';
 import OrderManagement from './OrderManagement';
 import OrderDetails from './OrderDetails';
 import CustomerDetails from './CustomerDetails';
+import UserManagement from './UserManagement';
+import UserOrders from './UserOrders';
+import UserEdit from './UserEdit';
 
 // Admin Dashboard Main Component
 const AdminDashboard = () => {
@@ -164,7 +167,9 @@ const AdminDashboard = () => {
         <main className="flex-1 overflow-auto p-6">
           <Routes>
             <Route path="/" element={<>Hello </>} />
-            <Route path="/users" element={<>Hello </>} />
+            <Route path="/users" element={<UserManagement />} />
+            <Route path="/users/:userId/orders" element={<UserOrders />} />
+            <Route path="/users/:userId/edit" element={<UserEdit />} />
             <Route path="/categories" element={<CategoryManagement /> } />
             <Route path="/products" element={<ProductManagement /> } />
             <Route path="/sections" element={<HomepageSectionsAdmin /> } />

@@ -239,19 +239,19 @@ const HomepageSectionsAdmin = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Homepage Sections</h1>
-          <p className="text-gray-600 mt-1">Manage sections that appear on your homepage</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Homepage Sections</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage sections that appear on your homepage</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-[#094488] text-white px-6 py-3 rounded-lg flex items-center space-x-2 hover:bg-[#073a75] transition-colors"
+          className="bg-[#094488] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center space-x-2 hover:bg-[#073a75] transition-colors w-full sm:w-auto"
         >
           <Plus className="h-5 w-5" />
-          <span>Add Section</span>
+          <span className="whitespace-nowrap">Add Section</span>
         </button>
       </div>
 

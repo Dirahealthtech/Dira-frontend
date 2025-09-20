@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useCart } from '../pages/customer/CartContext';
-import { User, Menu, X, LogOut, LayoutDashboard, Heart, Search, Phone, ChevronDown, ShoppingCart } from 'lucide-react';
+import { User, Menu, X, LogOut, LayoutDashboard, Search, Phone, ChevronDown, ShoppingCart } from 'lucide-react';
+import logo from '../assets/logo.png'; // Assuming your logo is named logo.png
 
 const Header = () => {
   const { user, logout, isLoading } = useAuth();
@@ -15,9 +16,7 @@ const Header = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const userMenuRef = useRef(null);
   const sidebarRef = useRef(null);
-  
 
-  // Memoize expensive computations
   const dashboardLink = useMemo(() => {
     switch (user?.role) {
       case 'admin':
@@ -33,11 +32,6 @@ const Header = () => {
     }
   }, [user?.role]);
 
-  const isActive = useCallback((path) => {
-    return location.pathname.startsWith(path);
-  }, [location.pathname]);
-
-  // Stable handlers to prevent re-renders
   const handleLogout = useCallback(async () => {
     await logout();
     navigate('/');
@@ -106,34 +100,42 @@ const Header = () => {
     <>
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between gap-4">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={toggleSidebar}
-              className="md:hidden p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
-              data-sidebar-trigger
-              aria-label="Open menu"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
+          <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
+            {/* Logo Section - Contains hamburger menu on mobile and logo */}
+            <div className="flex items-center flex-shrink-0 min-w-0 space-x-2">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={toggleSidebar}
+                className="md:hidden p-2 text-gray-600 hover:text-[#8ab43f] transition-colors flex-shrink-0"
+                data-sidebar-trigger
+                aria-label="Open menu"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
 
-            {/* Logo */}
-            <div className="flex items-center flex-shrink-0">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-[#094488] rounded-lg flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" />
+              {/* Logo */}
+              <Link to="/" className="flex items-center space-x-2 min-w-0">
+                <img 
+                  src={logo} 
+                  alt="Dira Healthcare Technologies" 
+                  className="h-8 w-8 sm:h-10 sm:w-10 object-contain flex-shrink-0"
+                />
+                <div className="min-w-0">
+                  <span className="hidden xl:block text-xl font-bold text-gray-900 whitespace-nowrap">
+                    Dira Healthcare Technologies
+                  </span>
+                  <span className="hidden md:block xl:hidden text-lg font-bold text-gray-900 whitespace-nowrap">
+                    Dira Healthcare
+                  </span>
+                  <span className="hidden sm:block md:hidden text-base font-bold text-gray-900">
+                    Dira
+                  </span>
                 </div>
-                <span className="hidden sm:block text-xl font-bold text-gray-900">
-                  HealthCare Solutions
-                </span>
-                <span className="sm:hidden text-lg font-bold text-gray-900">
-                  HCS
-                </span>
               </Link>
             </div>
 
             {/* Search Bar - Desktop & Tablet */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
               <form onSubmit={handleSearch} className="relative w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -149,35 +151,31 @@ const Header = () => {
             </div>
 
             {/* Help Phone */}
-            <div className="hidden lg:flex items-center text-sm text-gray-600">
+            <div className="hidden xl:flex items-center text-sm text-gray-600 flex-shrink-0">
               <Phone className="h-4 w-4 mr-1" />
               <a 
-                href="tel:0712345678" 
-                className="text-[#094488] hover:text-[#8ab43f] font-semibold ml-1"
+                href="tel:+254721506230" 
+                className="text-[#094488] hover:text-[#8ab43f] font-semibold ml-1 whitespace-nowrap"
               >
-                0712345678
+                +254721506230
               </a>
             </div>
 
             {/* Right side items */}
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               {/* Search Button - Mobile */}
               <button
                 onClick={toggleMobileSearch}
                 className="md:hidden p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
                 aria-label="Search"
               >
-                <Search className="h-6 w-6" />
+                <Search className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
 
               {/* Cart Icon */}
               <Link to="/cart" className="relative inline-block" aria-label="Shopping cart">
-                <div
-                  className="relative p-2 text-gray-600 hover:text-[#8ab43f] transition-colors"
-                  title="Shopping Cart"
-                  aria-label={`Shopping cart with ${itemCount} items`}
-                >
-                  <ShoppingCart className="h-6 w-6" />
+                <div className="relative p-2 text-gray-600 hover:text-[#8ab43f] transition-colors">
+                  <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
                   
                   {/* Item Count Badge */}
                   {itemCount > 0 && (
@@ -205,14 +203,14 @@ const Header = () => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={toggleUserMenu}
-                    className="flex items-center space-x-1 p-2 text-gray-700 hover:text-[#8ab43f] transition-colors"
+                    className="flex items-center space-x-1 p-2 text-gray-700 hover:text-[#8ab43f] transition-colors min-w-0"
                     aria-label="User account"
                   >
-                    <User className="h-6 w-6" />
-                    <span className="hidden sm:block text-sm font-medium">
+                    <User className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                    <span className="hidden sm:block text-sm font-medium truncate max-w-[80px]">
                       {user ? user.first_name : 'Account'}
                     </span>
-                    <ChevronDown className={`h-4 w-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 transition-transform flex-shrink-0 ${userMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Dropdown Menu */}
@@ -299,10 +297,12 @@ const Header = () => {
                 className="flex items-center space-x-2"
                 onClick={() => setSidebarOpen(false)}
               >
-                <div className="h-8 w-8 bg-[#094488] rounded-lg flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-lg font-bold text-gray-900">HealthCare Solutions</span>
+                <img 
+                  src={logo} 
+                  alt="Dira Healthcare Technologies" 
+                  className="h-8 w-8 object-contain"
+                />
+                <span className="text-lg font-bold text-gray-900">Dira Healthcare Technologies</span>
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -313,74 +313,6 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Mobile Navigation Links */}
-            <nav className="p-4 flex-1">
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    to="/"
-                    onClick={() => setSidebarOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
-                      isActive('/') && location.pathname === '/' ? 'bg-gray-100' : ''
-                    }`}
-                  >
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/products"
-                    onClick={() => setSidebarOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
-                      isActive('/products') ? 'bg-gray-100' : ''
-                    }`}
-                  >
-                    Products
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/cart"
-                    onClick={() => setSidebarOpen(false)}
-                    className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="relative p-2 text-gray-600 mr-2">
-                      <ShoppingCart className="h-6 w-6" />
-                      {itemCount > 0 && (
-                        <span 
-                          className={`
-                            absolute -top-1 -right-1 bg-[#094488] text-white text-xs font-bold
-                            min-w-[1.25rem] h-5 rounded-full flex items-center justify-center
-                            ${cartIsLoading ? 'animate-pulse' : ''}
-                            ${itemCount > 99 ? 'text-[10px] px-1' : ''}
-                          `}
-                        >
-                          {itemCount > 99 ? '99+' : itemCount}
-                        </span>
-                      )}
-                      {cartIsLoading && itemCount === 0 && (
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#094488] rounded-full animate-ping" />
-                      )}
-                    </div>
-                    Cart
-                  </Link>
-                </li>
-                {user && (
-                  <li>
-                    <Link
-                      to={dashboardLink}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`block px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors ${
-                        isActive(dashboardLink) ? 'bg-gray-100' : ''
-                      }`}
-                    >
-                      Dashboard
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
-
             {/* Help Section */}
             <div className="px-4 py-4 border-t border-gray-200 mt-auto">
               <div className="flex items-center text-sm text-gray-600">
@@ -388,10 +320,10 @@ const Header = () => {
                 <div>
                   <div className="font-medium">Need help?</div>
                   <a
-                    href="tel:0712345678"
+                    href="tel:+254721506230"
                     className="text-[#094488] hover:text-[#8ab43f] font-semibold"
                   >
-                    Call: 0712345678
+                    Call: +254721506230
                   </a>
                 </div>
               </div>

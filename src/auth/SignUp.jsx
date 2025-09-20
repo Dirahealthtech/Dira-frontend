@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Eye, EyeOff, Loader2, Mail, Lock, User, Phone } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, Lock, User, Phone, Home } from 'lucide-react';
 
 const Signup = () => {
   const { signup } = useAuth();
@@ -41,6 +41,17 @@ const Signup = () => {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Home Link */}
+        <div className="flex justify-center">
+          <Link
+            to="/"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Go to Home
+          </Link>
+        </div>
+
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account

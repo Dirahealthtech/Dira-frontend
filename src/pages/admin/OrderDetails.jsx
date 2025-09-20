@@ -3,9 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Truck, Package,
   User, Mail, Phone, MapPin, Copy, Printer, Send, FileText, Edit,
-  DollarSign, Calendar, UserCheck, ExternalLink
+  DollarSign, Calendar, UserCheck, ExternalLink, CreditCard, Plus, X
 } from 'lucide-react';
 import api from '../../auth/api';
+import ShippingModal from './ShippingModal';
+import PaymentVerificationModal from './PaymentVerificationModal';
+import OrderCompleteModal from './OrderCompleteModal';
 
 const OrderDetails = () => {
   const { orderId } = useParams();
@@ -16,6 +19,14 @@ const OrderDetails = () => {
   const [customerLoading, setCustomerLoading] = useState(false);
   const [error, setError] = useState('');
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+  const [shippingModalOpen, setShippingModalOpen] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
+  const [completeOrderLoading, setCompleteOrderLoading] = useState(false);
+  const [verifyPaymentLoading, setVerifyPaymentLoading] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [statusNotes, setStatusNotes] = useState('');
 
   const ORDER_STATUSES = {
     pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
@@ -60,7 +71,6 @@ const OrderDetails = () => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    // You could add a toast notification here
   };
 
   const fetchOrder = async () => {
@@ -71,7 +81,6 @@ const OrderDetails = () => {
       const response = await api.get(`/api/v1/admin/orders/${orderId}`);
       setOrder(response.data);
       
-      // Fetch customer details if available
       if (response.data.customer_id) {
         await fetchCustomer(response.data.customer_id);
       }
@@ -90,17 +99,18 @@ const OrderDetails = () => {
       setCustomer(response.data);
     } catch (err) {
       console.error('Error fetching customer details:', err);
-      // Don't set error here as it's not critical
     } finally {
       setCustomerLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (newStatus) => {
+  const handleStatusUpdate = async (newStatus, notes = '') => {
     setStatusUpdateLoading(true);
     try {
-      await api.put(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus });
-      // Refresh order data
+      await api.patch(`/api/v1/admin/orders/${orderId}/status`, { 
+        status: newStatus,
+        notes: notes 
+      });
       await fetchOrder();
     } catch (err) {
       console.error('Error updating order status:', err);
@@ -110,6 +120,59 @@ const OrderDetails = () => {
     }
   };
 
+  const handleCompleteOrder = async (deliveryConfirmation = true, paymentCollected = true, notes = '') => {
+    setCompleteOrderLoading(true);
+    try {
+      await api.post(`/api/v1/admin/orders/${orderId}/complete`, { notes }, {
+        params: {
+          delivery_confirmation: deliveryConfirmation,
+          payment_collected: paymentCollected
+        }
+      });
+      setCompleteModalOpen(false);
+      await fetchOrder();
+    } catch (err) {
+      console.error('Error completing order:', err);
+      setError(`Failed to complete order: ${err.message}`);
+    } finally {
+      setCompleteOrderLoading(false);
+    }
+  };
+
+  const handleAssignShipping = async (shippingData) => {
+    try {
+      await api.post(`/api/v1/admin/orders/${orderId}/shipping/assign`, shippingData);
+      setShippingModalOpen(false);
+      await fetchOrder();
+    } catch (err) {
+      console.error('Error assigning shipping:', err);
+      setError(`Failed to assign shipping: ${err.message}`);
+    }
+  };
+
+  const handleVerifyPayment = async (paymentData) => {
+    setVerifyPaymentLoading(true);
+    try {
+      await api.post(`/api/v1/admin/orders/${orderId}/payment/verify`, null, {
+        params: paymentData
+      });
+      await fetchOrder();
+    } catch (err) {
+      console.error('Error verifying payment:', err);
+      setError(`Failed to verify payment: ${err.message}`);
+    } finally {
+      setVerifyPaymentLoading(false);
+    }
+  };
+
+  const handleStatusUpdateWithModal = async () => {
+    if (!selectedStatus) return;
+    await handleStatusUpdate(selectedStatus, statusNotes);
+    setStatusModalOpen(false);
+    setStatusNotes('');
+    setSelectedStatus('');
+  };
+
   const handleViewCustomer = () => {
     if (order?.customer_id) {
       navigate(`/admin/customers/${order.customer_id}`);
@@ -117,18 +180,11 @@ const OrderDetails = () => {
   };
 
   const handlePrintInvoice = () => {
-    // Implement print functionality
     window.print();
   };
 
   const handleSendEmail = () => {
-    // Implement email functionality
     console.log('Sending email update...');
-  };
-
-  const handleAddNote = () => {
-    // Implement note functionality
-    console.log('Adding note...');
   };
 
   useEffect(() => {
@@ -466,13 +522,16 @@ const OrderDetails = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Status</h3>
             <div className="space-y-2">
               {Object.entries(ORDER_STATUSES).map(([status, config]) => {
-                const StatusIcon = config.icon;
+                const StatusIconComponent = config.icon;
                 const isCurrentStatus = order.status === status;
                 
                 return (
                   <button
                     key={status}
-                    onClick={() => handleStatusUpdate(status)}
+                    onClick={() => {
+                      setSelectedStatus(status);
+                      setStatusModalOpen(true);
+                    }}
                     disabled={isCurrentStatus || statusUpdateLoading}
                     className={`w-full flex items-center px-3 py-2 rounded text-sm font-medium transition-colors ${
                       isCurrentStatus 
@@ -480,7 +539,7 @@ const OrderDetails = () => {
                         : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                     }`}
                   >
-                    <StatusIcon className="w-4 h-4 mr-2" />
+                    <StatusIconComponent className="w-4 h-4 mr-2" />
                     {isCurrentStatus ? `Current: ${config.label}` : `Mark as ${config.label}`}
                   </button>
                 );
@@ -513,17 +572,112 @@ const OrderDetails = () => {
                 <User className="w-4 h-4 inline mr-2" />
                 View Customer
               </button>
+              
+              {/* New Actions */}
+              {(order.status === 'processing' || order.status === 'pending') && (
+                <button 
+                  onClick={() => setShippingModalOpen(true)}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition-colors"
+                >
+                  <Truck className="w-4 h-4 inline mr-2" />
+                  Assign Shipping
+                </button>
+              )}
+              
+              {order.payment_status !== 'completed' && (
+                <button 
+                  onClick={() => setPaymentModalOpen(true)}
+                  disabled={verifyPaymentLoading}
+                  className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors disabled:opacity-50"
+                >
+                  <CreditCard className="w-4 h-4 inline mr-2" />
+                  {verifyPaymentLoading ? 'Verifying...' : 'Verify Payment'}
+                </button>
+              )}
+              
+              {(order.status === 'shipped' || order.status === 'processing') && (
+                <button 
+                  onClick={() => setCompleteModalOpen(true)}
+                  disabled={completeOrderLoading}
+                  className="w-full bg-emerald-600 text-white py-2 px-4 rounded hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                >
+                  <CheckCircle className="w-4 h-4 inline mr-2" />
+                  {completeOrderLoading ? 'Completing...' : 'Complete Order'}
+                </button>
+              )}
+              
               <button 
-                onClick={handleAddNote}
+                onClick={() => setStatusModalOpen(true)}
                 className="w-full bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors"
               >
-                <FileText className="w-4 h-4 inline mr-2" />
-                Add Note
+                <Edit className="w-4 h-4 inline mr-2" />
+                Update Status with Notes
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Status Update Modal */}
+      {statusModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Update Order Status
+                </h3>
+                <button
+                  onClick={() => {
+                    setStatusModalOpen(false);
+                    setStatusNotes('');
+                    setSelectedStatus('');
+                  }}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleStatusUpdateWithModal}
+                  disabled={statusUpdateLoading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {statusUpdateLoading ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Shipping Assignment Modal */}
+      {shippingModalOpen && (
+        <ShippingModal
+          orderId={orderId}
+          onClose={() => setShippingModalOpen(false)}
+          onAssign={handleAssignShipping}
+        />
+      )}
+
+      {/* Payment Verification Modal */}
+      {paymentModalOpen && (
+        <PaymentVerificationModal
+          orderId={orderId}
+          orderData={order}
+          onClose={() => setPaymentModalOpen(false)}
+          onVerify={handleVerifyPayment}
+        />
+      )}
+
+      {/* Order Complete Modal */}
+      {completeModalOpen && (
+        <OrderCompleteModal
+          orderId={orderId}
+          orderData={order}
+          onClose={() => setCompleteModalOpen(false)}
+          onComplete={handleCompleteOrder}
+        />
+      )}
     </div>
   );
 };

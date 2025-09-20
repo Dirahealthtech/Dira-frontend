@@ -11,6 +11,8 @@ const AddToCartButton = ({
   variant = 'primary',
   disabled = false,
   onSuccess,
+  onLoginRedirect, // New prop for custom login redirect handler
+  loginPath = '/login', // Default login path
   className = ''
 }) => {
   const { addToCart, isLoading } = useCart();
@@ -19,11 +21,21 @@ const AddToCartButton = ({
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddToCart = async () => {
-    if (!productId || disabled || !isAuthenticated) {
-      if (!isAuthenticated) {
-        // In real app, you might want to redirect to login or show a modal
-        alert('Please login to add items to cart');
+    // If user is not authenticated, redirect to login
+    if (!isAuthenticated) {
+      if (onLoginRedirect) {
+        onLoginRedirect();
+      } else {
+        // Default redirect behavior (you can customize this based on your routing setup)
+        window.location.href = loginPath;
+        // For React Router, you might use:
+        // navigate(loginPath);
       }
+      return;
+    }
+
+    // If disabled or no productId, don't proceed
+    if (!productId || disabled) {
       return;
     }
 
@@ -66,10 +78,13 @@ const AddToCartButton = ({
   const currentSize = sizeClasses[size];
   const currentVariant = variantClasses[variant];
 
+  // Only disable for actual disabled prop or loading states, not authentication
+  const isButtonDisabled = disabled || isLoading || isAdding;
+
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
-      {/* Quantity Controls */}
-      {showQuantityControls && (
+      {/* Quantity Controls - only show if authenticated */}
+      {showQuantityControls && isAuthenticated && (
         <div className="flex items-center border border-gray-300 rounded-lg">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -93,7 +108,7 @@ const AddToCartButton = ({
       {/* Add to Cart Button */}
       <button
         onClick={handleAddToCart}
-        disabled={disabled || isLoading || isAdding || !isAuthenticated}
+        disabled={isButtonDisabled}
         className={`
           ${currentSize.button} 
           ${currentVariant} w-full
@@ -105,7 +120,9 @@ const AddToCartButton = ({
       >
         <ShoppingCart className={`${currentSize.icon} ${isAdding ? 'animate-bounce' : ''}`} />
         <span>
-          {isAdding ? 'Adding...' : showQuantityControls ? `Add ${quantity} to Cart` : 'Add to Cart'}
+          {!isAuthenticated ? 'Add to Cart' :
+           isAdding ? 'Adding...' : 
+           showQuantityControls ? `Add ${quantity} to Cart` : 'Add to Cart'}
         </span>
       </button>
     </div>
