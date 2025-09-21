@@ -32,16 +32,15 @@ const ProductCard = ({
   };
 
   const getProductImageUrl = (product) => {
-    const firstImage = getFirstImage(product.images);
-    if (firstImage) {
-      // Check if it's already a full URL
-      if (firstImage.startsWith('http')) {
-        return firstImage;
-      }
-      // Otherwise, construct the full URL
-      return `${api.defaults.baseURL}/uploads/products/${firstImage}`;
-    }
-    return null;
+    if (!product.images) return null;
+
+    // Split string by comma, take the first one, trim whitespace
+    const firstImage = product.images.split(",")[0]?.trim();
+
+    if (!firstImage) return null;
+
+    // ✅ Build explicit URL (only filename is dynamic)
+    return `http://localhost:8000/${firstImage}`;
   };
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
