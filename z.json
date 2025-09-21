@@ -1,48 +1,178 @@
 {
-    "id": 1,
-    "first_name": "Omar",
-    "last_name": "Abdi",
-    "email": "user@example.com",
-    "phone_number": "+254712345678",
-    "role": "customer",
-    "is_verified": true,
-    "status": "active",
-    "created_at": "2025-09-14T14:44:49.100820Z",
-    "updated_at": "2025-09-14T14:44:49.100820Z",
-    "total_orders": 3,
-    "total_spent": 224400.0,
-    "last_order_date": "2025-09-15T13:41:44.526119",
-    "last_login": null,
-    "customer_profile": null,
-    "recent_orders": [
-        {
-            "id": 3,
-            "order_number": "ORDER-7DC865A0",
-            "status": "pending",
-            "total": 40800.0,
-            "payment_status": "pending",
-            "created_at": "2025-09-15T13:41:44.526119",
-            "items_count": 1
-        },
-        {
-            "id": 2,
-            "order_number": "ORDER-A1460CE7",
-            "status": "pending",
-            "total": 163200.0,
-            "payment_status": "pending",
-            "created_at": "2025-09-15T13:39:00.026346",
-            "items_count": 1
-        },
-        {
-            "id": 1,
-            "order_number": "ORDER-45BEBA87",
-            "status": "pending",
-            "total": 20400.0,
-            "payment_status": "pending",
-            "created_at": "2025-09-15T12:39:09.475464",
-            "items_count": 1
-        }
-    ],
-    "total_reviews": 0,
-    "shipping_addresses": []
+    "summary": {
+        "total_users": 2,
+        "total_products": 3,
+        "total_categories": 10,
+        "total_orders": 5,
+        "total_sales": 0.0,
+        "active_users_this_month": 2,
+        "conversion_rate": 100.0
+    },
+    "sales": {
+        "today": 0.0,
+        "this_week": 0.0,
+        "this_month": 0.0,
+        "last_month": 0.0,
+        "year_to_date": 0.0,
+        "order_count_today": 0,
+        "order_count_this_week": 5,
+        "order_count_this_month": 5,
+        "average_order_value": 0.0,
+        "top_selling_products": []
+    },
+    "products": {
+        "total": 3,
+        "active": 3,
+        "inactive": 0,
+        "out_of_stock": 0,
+        "low_stock_count": 0,
+        "low_stock_products": [],
+        "categories": [
+            {
+                "category_id": 11,
+                "name": "Medical Devices",
+                "product_count": 1,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 1,
+                "name": "Tools",
+                "product_count": 1,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 4,
+                "name": "Digestive Health",
+                "product_count": 1,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 7,
+                "name": "First Aid",
+                "product_count": 0,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 8,
+                "name": "Vitamins and Supplements",
+                "product_count": 0,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 9,
+                "name": "Personal Care and Hygiene",
+                "product_count": 0,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 5,
+                "name": "Respiratory Care",
+                "product_count": 0,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 3,
+                "name": "Pain Relief",
+                "product_count": 0,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 10,
+                "name": "Prescription Medications",
+                "product_count": 0,
+                "revenue": 0.0
+            },
+            {
+                "category_id": 6,
+                "name": "Diabetes Management",
+                "product_count": 0,
+                "revenue": 0.0
+            }
+        ]
+    },
+    "users": {
+        "total": 2,
+        "new_today": 0,
+        "new_this_week": 1,
+        "new_this_month": 2,
+        "active_this_month": 2,
+        "verified_users": 2,
+        "top_buyers": [
+            {
+                "user_id": 2,
+                "first_name": "Omar",
+                "last_name": "Abdullahi",
+                "email": "omarmahat702@gmail.com",
+                "total_spent": 4.0,
+                "total_orders": 2,
+                "last_order_date": "2025-09-15T13:49:15.977891"
+            }
+        ]
+    },
+    "orders": {
+        "pending": 4,
+        "confirmed": 0,
+        "shipped": 1,
+        "delivered": 0,
+        "cancelled": 0,
+        "returned": 0,
+        "total_value": 224404.0,
+        "latest_orders": [
+            {
+                "order_id": 5,
+                "order_number": "ORDER-460B5939",
+                "user_name": "Omar Abdullahi",
+                "status": "shipped",
+                "total": 2.0,
+                "created_at": "2025-09-15T13:49:15.977891"
+            },
+            {
+                "order_id": 4,
+                "order_number": "ORDER-7BB8E127",
+                "user_name": "Omar Abdullahi",
+                "status": "pending",
+                "total": 2.0,
+                "created_at": "2025-09-15T13:48:09.717047"
+            },
+            {
+                "order_id": 3,
+                "order_number": "ORDER-7DC865A0",
+                "user_name": "Iqra Abdikarim",
+                "status": "pending",
+                "total": 40800.0,
+                "created_at": "2025-09-15T13:41:44.526119"
+            },
+            {
+                "order_id": 2,
+                "order_number": "ORDER-A1460CE7",
+                "user_name": "Iqra Abdikarim",
+                "status": "pending",
+                "total": 163200.0,
+                "created_at": "2025-09-15T13:39:00.026346"
+            },
+            {
+                "order_id": 1,
+                "order_number": "ORDER-45BEBA87",
+                "user_name": "Iqra Abdikarim",
+                "status": "pending",
+                "total": 20400.0,
+                "created_at": "2025-09-15T12:39:09.475464"
+            }
+        ]
+    },
+    "reviews": {
+        "total_reviews": 0,
+        "average_rating": 0.0,
+        "reviews_this_month": 0,
+        "pending_reviews": 0,
+        "recent_reviews": []
+    },
+    "revenue_by_category": [],
+    "alerts": {
+        "low_stock_products": 0,
+        "out_of_stock_products": 0,
+        "pending_orders": 4,
+        "unread_reviews": 0,
+        "failed_payments": 0
+    }
 }

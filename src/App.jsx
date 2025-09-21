@@ -26,10 +26,9 @@ const ConditionalHeader = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isServiceRoute = location.pathname.startsWith('/service');
   const isSupplierRoute = location.pathname.startsWith('/supplier');
-  const isAuthRoute = ['/login', '/signup', '/forgot-password'].some(path => 
+  const isAuthRoute = ['/login', '/signup', '/forgot-password', '/reset-password'].some(path => 
     location.pathname.startsWith(path)
-  ) || location.pathname.includes('/confirm-reset-password') || 
-      location.pathname.includes('/verify-account');
+  ) || location.pathname.includes('/verify-account');
   
   // Don't show header and category bar on admin, service, supplier routes, or auth pages
   const shouldHideNavigation = isAdminRoute || isServiceRoute || isSupplierRoute || isAuthRoute;
@@ -89,7 +88,7 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/api/v1/auth/confirm-reset-password/:token" element={<ResetPassword />} />
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
                   <Route path="/api/v1/auth/verify-account/:token" element={<VerifyEmail />} />
                 </Route>
                 
@@ -120,7 +119,7 @@ function App() {
             </main>
           </div>
         </Router>
-      </CartProvider> {/* Close CartProvider */}
+      </CartProvider>
     </AuthProvider>
   );
 }

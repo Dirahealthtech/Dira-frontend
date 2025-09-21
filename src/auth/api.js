@@ -39,7 +39,8 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await api.get('/auth/refresh-token', {
+        // FIXED: Added the correct route path
+        const response = await api.get('/api/v1/auth/refresh-token', {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
           },

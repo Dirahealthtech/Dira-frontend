@@ -11,6 +11,7 @@ import CustomerDetails from './CustomerDetails';
 import UserManagement from './UserManagement';
 import UserOrders from './UserOrders';
 import UserEdit from './UserEdit';
+import DashboardOverview from './DashboardOverview';
 
 // Admin Dashboard Main Component
 const AdminDashboard = () => {
@@ -166,7 +167,7 @@ const AdminDashboard = () => {
         {/* Page Content */}
         <main className="flex-1 overflow-auto p-6">
           <Routes>
-            <Route path="/" element={<>Hello </>} />
+            <Route path="/" element={<DashboardOverview /> } />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/users/:userId/orders" element={<UserOrders />} />
             <Route path="/users/:userId/edit" element={<UserEdit />} />

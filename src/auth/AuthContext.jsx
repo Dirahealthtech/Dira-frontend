@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('access_token', access_token);
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
-      await loadUser();
+      // await loadUser();
       return true;
     } catch (error) {
       setUser(null);
