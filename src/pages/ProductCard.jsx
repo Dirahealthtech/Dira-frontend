@@ -25,12 +25,6 @@ const ProductCard = ({
     }).format(price);
   };
 
-  const getFirstImage = (images) => {
-    if (!images) return null;
-    const imageArray = images.split(',');
-    return imageArray[0]?.trim() || null;
-  };
-
   const getProductImageUrl = (product) => {
     if (!product.images) return null;
 
@@ -39,8 +33,14 @@ const ProductCard = ({
 
     if (!firstImage) return null;
 
-    // ✅ Build explicit URL (only filename is dynamic)
-    return `http://localhost:8000/${firstImage}`;
+    // ✅ Use environment-aware base URL
+    const baseURL = import.meta.env.VITE_API_URL || 'https://app.dirahealthtech.co.ke';
+    
+    // Remove any trailing slash from baseURL and leading slash from firstImage
+    const cleanBaseURL = baseURL.replace(/\/$/, '');
+    const cleanImagePath = firstImage.startsWith('/') ? firstImage : `/${firstImage}`;
+    
+    return `${cleanBaseURL}${cleanImagePath}`;
   };
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
@@ -94,7 +94,9 @@ const ProductCard = ({
                   loading="lazy"
                 />
               ) : (
-                <ImageIcon className="w-12 h-12 text-gray-400" />
+                <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded">
+                  <ImageIcon className="w-12 h-12 text-gray-400" />
+                </div>
               )}
             </div>
           </div>
@@ -132,6 +134,7 @@ const ProductCard = ({
                       ? 'bg-red-100 text-red-500' 
                       : 'bg-gray-100 text-gray-400 hover:text-red-500'
                   }`}
+                  aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                   <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
@@ -192,6 +195,7 @@ const ProductCard = ({
               ? 'bg-red-100 text-red-500' 
               : 'bg-white text-gray-400 hover:text-red-500'
           }`}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
