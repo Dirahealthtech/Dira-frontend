@@ -141,7 +141,7 @@ const ProductDetails = () => {
     .split(',')
     .map(img => img.trim())
     .filter(img => img)
-    .map(img => `http://localhost:8000/${img}`);
+    .map(img => `https://app.dirahealthtech.co.ke/${img}`);
   };
 
   const images = getProductImages();
